@@ -71,11 +71,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Visitor tracking endpoint
   app.post("/api/track-visit", async (req, res) => {
+    // Return immediately to not block page load
+    res.json({ success: true });
+    
     try {
-      // Get IP address
-      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 
-                 req.socket.remoteAddress || 
-                 'Unknown';
+      // Get IP address - sanitize and validate
+      let ip = 'Unknown';
+      const forwardedFor = req.headers['x-forwarded-for'] as string;
+      
+      if (forwardedFor) {
+        // Take first IP from X-Forwarded-For chain
+        const firstIp = forwardedFor.split(',')[0].trim();
+        // Basic IP validation (IPv4 or IPv6)
+        if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(firstIp) || /^[0-9a-fA-F:]+$/.test(firstIp)) {
+          ip = firstIp;
+        }
+      } else if (req.socket.remoteAddress) {
+        ip = req.socket.remoteAddress;
+      }
       
       // Get page from request body
       const { page } = req.body;
@@ -95,27 +108,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? `${result.os.name} ${result.os.version || ''}`.trim()
         : 'Unknown';
       
-      // Get country from IP using ipapi.co
+      // Get country from IP using ipapi.co (with timeout to prevent hanging)
       let country = 'Unknown';
-      try {
-        const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`);
-        if (geoResponse.ok) {
-          const geoData = await geoResponse.json();
-          country = geoData.country_name || geoData.country || 'Unknown';
+      if (ip !== 'Unknown') {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+          
+          const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`, {
+            signal: controller.signal
+          });
+          clearTimeout(timeout);
+          
+          if (geoResponse.ok) {
+            const geoData = await geoResponse.json();
+            country = geoData.country_name || geoData.country || 'Unknown';
+          }
+        } catch (error) {
+          console.error("Geolocation lookup failed:", error);
+          // Continue with Unknown country
         }
-      } catch (error) {
-        console.error("Failed to get geolocation:", error);
       }
       
-      // Send notification to Telegram (fire and forget - don't block response)
+      // Send notification to Telegram (async, don't wait for result)
       notifyVisitor(ip, country, device, browser, os, page || 'Unknown').catch(err => {
-        console.error("Failed to notify visitor:", err);
+        console.error("❌ CRITICAL: Failed to send visitor notification to Telegram:", err);
+        // In production, you might want to queue this for retry or send to a monitoring service
       });
       
-      res.json({ success: true });
     } catch (error) {
       console.error("Visitor tracking error:", error);
-      res.json({ success: false }); // Always return success to not block frontend
+      // Don't throw - tracking failures should not affect the app
     }
   });
 

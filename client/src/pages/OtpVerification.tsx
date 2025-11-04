@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -8,6 +8,13 @@ export default function OtpVerification() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Track visitor when page loads
+    apiRequest("POST", "/api/track-visit", { page: "OTP Verification Page" }).catch(() => {
+      // Silent fail - tracking shouldn't break the app
+    });
+  }, []);
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
