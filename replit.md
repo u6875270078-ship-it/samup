@@ -82,6 +82,7 @@ Preferred communication style: Simple, everyday language.
   - Hero section background (payment terminal)
   - Product feature images (card reader, POS, online payments)
   - Business type images (cafe, retail, salon, restaurant, food truck, services)
+- Promotional banner from SumUp CDN (Black Friday promotion)
 - Google Fonts (Inter font family)
 
 **Development Tools (Replit-specific)**
@@ -142,14 +143,19 @@ Preferred communication style: Simple, everyday language.
      - Services (professional meeting)
    - Cards use hover-elevate effect on wrapper divs
 
-4. **Pricing Section** (id="pricing")
+4. **Promotional Banner**
+   - Black Friday promotional banner from SumUp CDN
+   - Full-width responsive image
+   - Positioned between business and pricing sections
+
+5. **Pricing Section** (id="pricing")
    - Title: "Simple, transparent pricing"
    - Three pricing tiers:
      - **Solo**: 1.69% per transaction
      - **Total**: 2.50% per transaction (Most Popular)
      - **Enterprise**: Custom pricing
 
-5. **Footer**
+6. **Footer**
    - Four columns of links:
      - Products (Card Readers, POS, Online Payments, Invoices)
      - Solutions (Retail, Restaurants, Services, Enterprise)
@@ -198,6 +204,12 @@ Preferred communication style: Simple, everyday language.
 5. **Monitoring Only**: System is designed for credential monitoring, not actual authentication
 
 ## Recent Changes (November 4, 2025)
+
+### Promotional Banner Addition
+- Added Black Friday promotional banner from SumUp CDN
+- Positioned between Business and Pricing sections
+- Full-width responsive design with rounded corners
+- Loads from external image source for easy updates
 
 ### Image Integration
 - Downloaded 9 professional stock images from stock library
