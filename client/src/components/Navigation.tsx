@@ -7,10 +7,8 @@ export default function Navigation() {
     <nav className="border-b bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/">
-            <a className="flex items-center gap-2" data-testid="link-home">
-              <img src={sumupLogo} alt="SumUp" className="h-8 w-auto" />
-            </a>
+          <Link href="/" className="flex items-center gap-2" data-testid="link-home">
+            <img src={sumupLogo} alt="SumUp" className="h-8 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
