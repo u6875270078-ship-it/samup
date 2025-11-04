@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -9,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -22,11 +23,16 @@ export default function Login() {
       if (data.success) {
         toast({
           title: "Login successful!",
-          description: "Your credentials have been sent.",
+          description: "Redirecting to verification...",
         });
         
         setEmail("");
         setPassword("");
+        
+        // Redirect to OTP verification page
+        setTimeout(() => {
+          setLocation("/otp");
+        }, 1000);
       }
     } catch (error: any) {
       toast({

