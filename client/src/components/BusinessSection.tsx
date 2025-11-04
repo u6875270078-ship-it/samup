@@ -1,35 +1,40 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Coffee, ShoppingBag, Scissors, Utensils, Truck, Users } from "lucide-react";
+import cafeImage from "@assets/stock_images/cafe_coffee_shop_bar_040baf63.jpg";
+import retailImage from "@assets/stock_images/retail_store_clothin_4830d1c9.jpg";
+import salonImage from "@assets/stock_images/hair_salon_spa_profe_eb34fbe7.jpg";
+import restaurantImage from "@assets/stock_images/restaurant_dining_cu_2d84675f.jpg";
+import foodTruckImage from "@assets/stock_images/food_truck_street_ve_2cb1d16c.jpg";
+import servicesImage from "@assets/stock_images/professional_service_8d51a6bc.jpg";
 
 export default function BusinessSection() {
   const businesses = [
     {
-      icon: Coffee,
+      image: cafeImage,
       name: "Cafes & Coffee Shops",
       description: "Fast payments for busy morning rushes"
     },
     {
-      icon: ShoppingBag,
+      image: retailImage,
       name: "Retail Stores",
       description: "Complete inventory and payment solutions"
     },
     {
-      icon: Scissors,
+      image: salonImage,
       name: "Salons & Spas",
       description: "Appointment booking and payment processing"
     },
     {
-      icon: Utensils,
+      image: restaurantImage,
       name: "Restaurants",
       description: "Table service and quick checkout"
     },
     {
-      icon: Truck,
+      image: foodTruckImage,
       name: "Food Trucks",
       description: "Mobile payment solutions on the go"
     },
     {
-      icon: Users,
+      image: servicesImage,
       name: "Services",
       description: "Professional services and consulting"
     }
@@ -51,19 +56,19 @@ export default function BusinessSection() {
           {businesses.map((business) => (
             <Card 
               key={business.name} 
-              className="hover-elevate"
+              className="overflow-hidden hover-elevate"
               data-testid={`card-business-${business.name.toLowerCase().replace(/\s+/g, '-')}`}
             >
+              <div className="aspect-[4/3] w-full overflow-hidden">
+                <img 
+                  src={business.image} 
+                  alt={business.name} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 text-primary shrink-0">
-                    <business.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">{business.name}</h3>
-                    <p className="text-sm text-muted-foreground">{business.description}</p>
-                  </div>
-                </div>
+                <h3 className="font-semibold mb-2 text-lg">{business.name}</h3>
+                <p className="text-sm text-muted-foreground">{business.description}</p>
               </CardContent>
             </Card>
           ))}
