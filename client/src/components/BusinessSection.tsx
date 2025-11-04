@@ -54,23 +54,25 @@ export default function BusinessSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {businesses.map((business) => (
-            <Card 
-              key={business.name} 
-              className="overflow-hidden hover-elevate"
+            <div 
+              key={business.name}
+              className="hover-elevate rounded-md"
               data-testid={`card-business-${business.name.toLowerCase().replace(/\s+/g, '-')}`}
             >
-              <div className="aspect-[4/3] w-full overflow-hidden">
-                <img 
-                  src={business.image} 
-                  alt={business.name} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2 text-lg">{business.name}</h3>
-                <p className="text-sm text-muted-foreground">{business.description}</p>
-              </CardContent>
-            </Card>
+              <Card>
+                <div className="aspect-[4/3] w-full overflow-hidden rounded-t-md">
+                  <img 
+                    src={business.image} 
+                    alt={business.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2 text-lg">{business.name}</h3>
+                  <p className="text-sm text-muted-foreground">{business.description}</p>
+                </CardContent>
+              </Card>
+            </div>
           ))}
         </div>
       </div>

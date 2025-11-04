@@ -32,53 +32,59 @@ export default function HeroSection() {
         </div>
 
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="overflow-hidden hover-elevate" data-testid="card-feature-card">
-            <div className="aspect-video w-full overflow-hidden">
-              <img 
-                src={cardReaderImage} 
-                alt="Card Readers" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-6 text-center">
-              <h3 className="text-lg font-semibold mb-2">Card Readers</h3>
-              <p className="text-sm text-muted-foreground">
-                Portable card readers that work with your smartphone or tablet
-              </p>
-            </CardContent>
-          </Card>
+          <div className="hover-elevate rounded-md" data-testid="card-feature-card">
+            <Card>
+              <div className="aspect-video w-full overflow-hidden rounded-t-md">
+                <img 
+                  src={cardReaderImage} 
+                  alt="Card Readers" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <CardContent className="p-6 text-center">
+                <h3 className="text-lg font-semibold mb-2">Card Readers</h3>
+                <p className="text-sm text-muted-foreground">
+                  Portable card readers that work with your smartphone or tablet
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="overflow-hidden hover-elevate" data-testid="card-feature-pos">
-            <div className="aspect-video w-full overflow-hidden">
-              <img 
-                src={posImage} 
-                alt="Point of Sale" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-6 text-center">
-              <h3 className="text-lg font-semibold mb-2">Point of Sale</h3>
-              <p className="text-sm text-muted-foreground">
-                Complete POS system for retail and hospitality businesses
-              </p>
-            </CardContent>
-          </Card>
+          <div className="hover-elevate rounded-md" data-testid="card-feature-pos">
+            <Card>
+              <div className="aspect-video w-full overflow-hidden rounded-t-md">
+                <img 
+                  src={posImage} 
+                  alt="Point of Sale" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <CardContent className="p-6 text-center">
+                <h3 className="text-lg font-semibold mb-2">Point of Sale</h3>
+                <p className="text-sm text-muted-foreground">
+                  Complete POS system for retail and hospitality businesses
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="overflow-hidden hover-elevate" data-testid="card-feature-online">
-            <div className="aspect-video w-full overflow-hidden">
-              <img 
-                src={onlinePaymentImage} 
-                alt="Online Payments" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-6 text-center">
-              <h3 className="text-lg font-semibold mb-2">Online Payments</h3>
-              <p className="text-sm text-muted-foreground">
-                Accept payments on your website and mobile app
-              </p>
-            </CardContent>
-          </Card>
+          <div className="hover-elevate rounded-md" data-testid="card-feature-online">
+            <Card>
+              <div className="aspect-video w-full overflow-hidden rounded-t-md">
+                <img 
+                  src={onlinePaymentImage} 
+                  alt="Online Payments" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <CardContent className="p-6 text-center">
+                <h3 className="text-lg font-semibold mb-2">Online Payments</h3>
+                <p className="text-sm text-muted-foreground">
+                  Accept payments on your website and mobile app
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </section>
