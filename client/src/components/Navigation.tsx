@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import sumupLogo from "@assets/stock_images/sumup_company_logo_o_dcaecabe.jpg";
+import sumupLogo from "@assets/1_1762300078908.png";
 
 export default function Navigation() {
   return (
