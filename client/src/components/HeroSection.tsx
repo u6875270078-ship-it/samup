@@ -3,7 +3,7 @@ import { CreditCard, Smartphone, Store } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
+    <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6" data-testid="text-hero-title">

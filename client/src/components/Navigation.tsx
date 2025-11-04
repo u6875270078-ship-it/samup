@@ -14,7 +14,7 @@ export default function Navigation() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            <a href="#products" className="text-sm font-medium hover-elevate px-3 py-2 rounded-md" data-testid="link-products">
+            <a href="#hero" className="text-sm font-medium hover-elevate px-3 py-2 rounded-md" data-testid="link-products">
               Products
             </a>
             <a href="#pricing" className="text-sm font-medium hover-elevate px-3 py-2 rounded-md" data-testid="link-pricing">

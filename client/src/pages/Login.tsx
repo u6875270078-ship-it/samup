@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -41,14 +42,16 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       <div className="w-full max-w-md">
-        <div className="mb-12 flex items-center">
-          <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center" data-testid="logo-icon">
-            <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5">
-              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <span className="ml-2 text-lg font-semibold" data-testid="logo-text">sumup</span>
-        </div>
+        <Link href="/">
+          <a className="mb-12 flex items-center hover:opacity-80 transition-opacity" data-testid="link-home">
+            <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center" data-testid="logo-icon">
+              <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="ml-2 text-lg font-semibold" data-testid="logo-text">sumup</span>
+          </a>
+        </Link>
 
         <h1 className="text-4xl font-bold mb-12 text-black" data-testid="text-title">
           Connexion
