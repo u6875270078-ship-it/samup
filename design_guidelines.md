@@ -1,152 +1,164 @@
-# SumUp Homepage Clone - Design Guidelines
+# Minimal Black & White Login Page - Design Guidelines
 
 ## Design Approach
 
-**Selected Approach:** Reference-Based (Modern Fintech Marketing)
+**Selected Approach:** Reference-Based (Minimalist Authentication)
 
-**Primary References:** SumUp's design system, Stripe's clean marketing aesthetic, and modern SaaS landing pages (Linear, Notion marketing sites)
+**Primary References:** Linear login, Notion authentication, Stripe's monochrome admin interfaces
 
 **Key Design Principles:**
-- Clean, professional fintech aesthetic with generous whitespace
-- Product-forward showcasing with high-quality photography
-- Clear information hierarchy emphasizing value propositions
-- Trust-building through pricing transparency and social proof
-- Mobile-first responsive design with seamless desktop scaling
+- Radical simplicity through black and white constraint
+- Generous whitespace as a design element
+- Typography hierarchy creates all visual interest
+- Form-focused with zero distractions
+- Centered, balanced composition
 
 ## Typography
 
-**Font Family:** Inter (Google Fonts) - clean, modern, highly readable sans-serif ideal for fintech
-- Headers: Use Inter with weights 700-800 for strong presence
-- Body: Inter weight 400-500 for optimal readability
-- Accents: Inter weight 600 for emphasis
+**Font Family:** Inter (Google Fonts) - exceptional clarity in monochrome contexts
 
 **Type Scale:**
-- Hero Headline: 4xl to 6xl (responsive) - Bold, commanding presence
-- Section Headers: 3xl to 4xl - Clear hierarchy
-- Product Card Titles: xl to 2xl - Bold weight
-- Body Text: base to lg - Regular weight with increased line-height (1.6-1.7)
-- Pricing Numbers: 4xl to 5xl - Extra bold for impact
-- Supporting Text: sm to base - Subtle weight reduction
-- Button Text: base - Medium weight (500-600)
+- Page Title: 3xl to 4xl, weight 700 - Strong, confident
+- Form Labels: sm, weight 500 - Subtle, purposeful
+- Input Text: base, weight 400 - Optimal readability
+- Button Text: sm, weight 600 - Medium emphasis
+- Helper Text: xs to sm, weight 400 - Understated guidance
+- Error Messages: sm, weight 500 - Clear but not alarming
+- Link Text: sm, weight 500 - Distinct through underline only
 
 ## Layout System
 
-**Spacing Primitives:** Use Tailwind units of 2, 4, 6, 8, 12, 16, 20, 24, 32
+**Spacing Primitives:** Tailwind units of 2, 3, 4, 6, 8, 12, 16, 24
 
-**Key Spacing Patterns:**
-- Section vertical padding: py-16 (mobile), py-24 to py-32 (desktop)
-- Card internal padding: p-6 to p-8
-- Component gaps: gap-4, gap-6, gap-8
-- Container constraints: max-w-7xl with px-4 to px-8
-- Hero section: min-h-screen with natural content flow
+**Core Layout:**
+- Centered card approach: max-w-md with full viewport centering
+- Internal card padding: p-8 to p-12
+- Form field vertical spacing: space-y-6
+- Input group spacing: space-y-2
+- Button top margin: mt-8
+- Section dividers: my-8
 
-**Grid System:**
-- Product cards: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
-- Business types: grid-cols-2 md:grid-cols-3 lg:grid-cols-4
-- Pricing: grid-cols-1 md:grid-cols-2 with max-w-4xl centering
-- Icon grid: grid-cols-2 md:grid-cols-3 lg:grid-cols-6
+**Composition:**
+- Left-aligned text within centered container
+- Balanced whitespace (equal margins all around)
+- Single column form layout
+- Optional logo placement: top-left absolute or centered above card
 
 ## Component Library
 
-### Navigation
-- Fixed header with logo left, navigation center, CTA buttons right
-- Mobile: Hamburger menu with slide-out drawer
-- Subtle shadow on scroll for depth
+### Container Card
+- White background (default body)
+- Subtle border: 1px solid with very light treatment
+- Rounded corners: rounded-lg
+- Optional subtle shadow for depth perception
+- Width: w-full max-w-md
+- Position: Centered both horizontally and vertically in viewport
 
-### Hero Section
-- Large headline with supporting subtext (max-w-3xl centered)
-- Two prominent CTAs: "Shop Now" (primary) and "Get a Demo" (secondary)
-- Hero image: Large product showcase (POS system with devices)
-- Support link subtly placed below CTAs
-- Height: 80vh minimum for impactful first impression
+### Form Inputs
+- Border style: 1px solid black
+- Height: h-12 for comfortable touch targets
+- Padding: px-4
+- Rounded: rounded-md
+- Focus state: Thicker border (2px) for clarity
+- Placeholder: Light treatment for hierarchy
+- Full width within container
 
-### Product Showcase Carousel
-- Horizontal scrolling cards on mobile, grid on desktop
-- Each card: Large product image (16:10 ratio), bold title, short description
-- Navigation arrows and indicators for desktop
-- Smooth snap scrolling behavior
-- Cards have subtle hover lift effect
+### Labels
+- Positioned above inputs with mb-2
+- Left-aligned for scannability
+- Optional asterisk for required fields
 
-### Pricing Section
-- Clean two-column layout (responsive to single column mobile)
-- Large pricing numbers as focal points
-- Clear transaction type labels
-- Supporting explanation text
-- Repeated CTA buttons below pricing
+### Primary Button
+- Full width: w-full
+- Height: h-12 for consistency with inputs
+- Background: Solid black
+- Text: White, centered
+- Rounded: rounded-md
+- Hover state: Slight transparency shift
+- Active state: Subtle scale
 
-### Checkout Experience
-- Full-width image showcase with overlay text
-- Demonstrates product in action with real-world context
+### Secondary Actions
+- Text-only links
+- Underline on hover only
+- Positioned below button with mt-4
+- Center-aligned
 
-### Business Types Grid
-- Photo-driven cards in 4-column grid (responsive collapse)
-- Image fills card with gradient overlay for text readability
-- Card titles positioned bottom-left
-- Horizontal scrolling on mobile with visible next cards
+### Divider
+- Horizontal rule with text ("or" continuation)
+- Text centered with line on either side
+- Spacing: my-8
 
-### Testimonial Block
-- Centered quote with large quotation marks
-- Customer name and business prominently displayed
-- Clean, spacious layout with max-w-3xl
+### Error States
+- Error text: Below relevant input with mt-2
+- Border color change on input (remains black, but thicker)
+- Small icon optional (exclamation mark)
 
-### Product Icons Section
-- 6-column grid collapsing to 2 on mobile
-- Icon + label combinations
-- Each item clickable with subtle hover state
+### Social Login Buttons (Optional)
+- Outlined style: 1px border, transparent background
+- Logo + text layout
+- Height: h-12
+- Spacing between buttons: space-y-3
+- Hover: Background fills with very subtle treatment
 
-### App Download Section
-- Split layout: App screenshot left, content right (stacks on mobile)
-- Large app screenshot showing interface
-- Download buttons for both platforms
-- Second variation for customer-facing app
+## Page Structure
 
-### Footer
-- Multi-column layout with legal disclaimers
-- Links organized by category
-- Newsletter signup integration
-- Social media icons
+**Single Column Layout:**
+1. **Header Area** (optional)
+   - Logo positioned top-center or top-left (mb-12)
+   - Minimal, icon-only or wordmark
 
-## Animations
+2. **Main Content Card**
+   - Title/Heading: "Welcome back" or "Sign in"
+   - Supporting text if needed (mb-8)
+   - Form fields:
+     - Email input with label
+     - Password input with label and visibility toggle
+     - "Forgot password?" link right-aligned below password
+   - Primary CTA button
+   - Divider (if social login present)
+   - Social login buttons (if needed)
+   - Bottom links: "Don't have an account? Sign up" centered
 
-**Use Sparingly:**
-- Card hover: Subtle lift (translateY) and shadow increase
-- Hero CTAs: Gentle scale on hover
-- Carousel: Smooth slide transitions
-- Scroll reveal: Fade-in with slight translateY for sections (intersection observer)
+3. **Footer** (optional)
+   - Minimal links (Privacy, Terms) centered at bottom
+   - Small text size (text-xs)
+
+## Interaction States
+
+**Minimal Animation:**
+- Input focus: Smooth border transition (150ms)
+- Button hover: Opacity transition (200ms)
+- Form submission: Button disabled state with subtle indicator
+
+**No Complex Animations:**
+- No slide-ins, fade-ins, or scroll effects
+- Instant page load
+- Direct, immediate feedback
+
+## Accessibility
+
+- High contrast maintained (pure black on white)
+- Proper label/input associations
+- Visible focus states with clear borders
+- Keyboard navigation fully supported
+- Error messages announced to screen readers
+- Touch targets minimum 44x44px
 
 ## Images
 
-**Hero Section:**
-- Large, high-quality product image showing SumUp POS system with multiple devices
-- Professional lifestyle photography with clean, bright lighting
-- Image dimensions: 1500x1000px minimum
-- Position: Right side on desktop, below headline on mobile
+**No Images Required** - This is a pure form-based interface. If branding is needed:
+- Logo: Simple SVG icon or wordmark (100x40px max)
+- Position: Top-center with mb-8 to mb-12
+- Monochrome treatment only
 
-**Product Showcase Cards (5 images):**
-1. POS system on wooden counter with card reader
-2. Touchscreen kiosk with burger advertisement
-3. Payment terminal displaying transaction amount with decorative items
-4. Person holding payment card near reader in shop setting
-5. Payment terminal showing contactless symbol with twine and plant
+## Critical Implementation Notes
 
-Each image: 800x600px, lifestyle photography style, real business contexts
-
-**Seamless Checkout:**
-- Full-width feature image (1500x800px) showing POS screen, cashier interaction, and reward offer
-- Split into visual sections demonstrating workflow
-
-**Business Types (9 images):**
-- Professional lifestyle photos of various business settings
-- Each 600x600px, showing business owner/employee in their environment
-- Categories: Fast Casual, Barber Shop, Coffee & Tea, Nail Salon, Boutique, Pet Store, Dessert & Bakery, Home Goods, Enterprise
-
-**App Screenshots:**
-- Mobile phone mockup showing SumUp app interface
-- 1284x2778px iPhone dimensions
-- Shows transaction processing and business dashboard
-
-**Product Icons:**
-- Simple, clean icon set (use Heroicons or similar)
-- 48x48px minimum for clarity
-
-**Critical:** All images should maintain consistent lighting, professional quality, and showcase real business scenarios to build trust and relatability.
+- Body background: Pure white
+- All text: Pure black (#000000)
+- All borders: Pure black
+- No gradients, shadows optional and extremely subtle
+- Input backgrounds: White (matching page)
+- Button: Solid black background, white text
+- Maintain consistent border weights: 1px default, 2px focus
+- Form centered: min-h-screen flex items-center justify-center
+- Responsive: Same design on all viewports (form stays max-w-md)
