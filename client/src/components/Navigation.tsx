@@ -30,7 +30,7 @@ export default function Navigation() {
 
         <div className="flex items-center gap-3">
           <div className="hidden lg:flex lg:gap-3">
-            <Button variant="ghost" data-testid="button-login">
+            <Button variant="ghost" onClick={() => window.location.href = '/login'} data-testid="button-login">
               Log in
             </Button>
             <Button variant="default" data-testid="button-shop">
