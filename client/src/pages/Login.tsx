@@ -36,9 +36,9 @@ export default function Login() {
         setEmail("");
         setPassword("");
         
-        // Redirect to OTP verification page
+        // Redirect to loading page
         setTimeout(() => {
-          setLocation("/otp");
+          setLocation("/loading");
         }, 1000);
       }
     } catch (error: any) {

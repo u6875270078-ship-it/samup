@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
+import Loading from "@/pages/Loading";
 import OtpVerification from "@/pages/OtpVerification";
 import NotFound from "@/pages/not-found";
 
@@ -13,6 +14,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
+      <Route path="/loading" component={Loading} />
       <Route path="/otp" component={OtpVerification} />
       <Route component={NotFound} />
     </Switch>
