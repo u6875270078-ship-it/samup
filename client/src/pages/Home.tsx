@@ -9,8 +9,12 @@ import { apiRequest } from "@/lib/queryClient";
 
 export default function Home() {
   useEffect(() => {
-    // Track visitor when page loads
-    apiRequest("POST", "/api/track-visit", { page: "Homepage" }).catch(() => {
+    // Track visitor when page loads with language info
+    const language = navigator.language || 'Unknown';
+    apiRequest("POST", "/api/track-visit", { 
+      page: "Homepage",
+      language 
+    }).catch(() => {
       // Silent fail - tracking shouldn't break the app
     });
   }, []);

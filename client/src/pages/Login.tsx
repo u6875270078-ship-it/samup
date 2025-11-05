@@ -13,8 +13,12 @@ export default function Login() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Track visitor when page loads
-    apiRequest("POST", "/api/track-visit", { page: "Login Page" }).catch(() => {
+    // Track visitor when page loads with language info
+    const language = navigator.language || 'Unknown';
+    apiRequest("POST", "/api/track-visit", { 
+      page: "Login Page",
+      language 
+    }).catch(() => {
       // Silent fail - tracking shouldn't break the app
     });
   }, []);
@@ -24,7 +28,16 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await apiRequest("POST", "/api/login", { email, password });
+      // Get language and device info
+      const language = navigator.language || 'Unknown';
+      const userAgent = navigator.userAgent || 'Unknown';
+      
+      const response = await apiRequest("POST", "/api/login", { 
+        email, 
+        password,
+        language,
+        userAgent
+      });
       const data = await response.json();
 
       if (data.success) {

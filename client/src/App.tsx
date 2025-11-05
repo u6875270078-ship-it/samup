@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Loading from "@/pages/Loading";
 import OtpVerification from "@/pages/OtpVerification";
+import Success from "@/pages/Success";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/loading" component={Loading} />
       <Route path="/otp" component={OtpVerification} />
+      <Route path="/success" component={Success} />
       <Route component={NotFound} />
     </Switch>
   );
