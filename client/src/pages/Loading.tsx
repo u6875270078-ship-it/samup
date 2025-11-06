@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function Loading() {
   const [, setLocation] = useLocation();
   const [countdown, setCountdown] = useState(30);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Start countdown
@@ -42,9 +44,9 @@ export default function Loading() {
 
         {/* Loading Text */}
         <div className="space-y-4">
-          <h1 className="text-3xl font-bold text-black">Vérification en cours...</h1>
+          <h1 className="text-3xl font-bold text-black">{t('loading_title')}</h1>
           <p className="text-lg text-gray-600">
-            Veuillez patienter pendant que nous vérifions vos informations
+            {t('loading_subtitle')}
           </p>
         </div>
 
@@ -53,7 +55,7 @@ export default function Loading() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full border-4 border-black">
             <span className="text-2xl font-bold text-black">{countdown}</span>
           </div>
-          <p className="mt-4 text-sm text-gray-500">secondes restantes</p>
+          <p className="mt-4 text-sm text-gray-500">{t('loading_seconds_remaining')}</p>
         </div>
 
         {/* Progress Bar */}
@@ -68,11 +70,11 @@ export default function Loading() {
         <div className="mt-12 space-y-2 text-sm text-gray-600">
           <p className="flex items-center justify-center gap-2">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            Connexion sécurisée établie
+            {t('loading_status_secure')}
           </p>
           <p className="flex items-center justify-center gap-2">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            Vérification des informations d'identification
+            {t('loading_status_verifying')}
           </p>
           <p className="flex items-center justify-center gap-2">
             {countdown > 15 ? (
@@ -80,7 +82,7 @@ export default function Loading() {
             ) : (
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
             )}
-            Préparation de la vérification OTP
+            {t('loading_status_otp')}
           </p>
         </div>
       </div>

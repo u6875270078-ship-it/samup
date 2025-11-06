@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "@/contexts/LanguageContext";
 import cafeImage from "@assets/stock_images/cafe_coffee_shop_bar_040baf63.jpg";
 import retailImage from "@assets/stock_images/retail_store_clothin_4830d1c9.jpg";
 import salonImage from "@assets/stock_images/hair_salon_spa_profe_eb34fbe7.jpg";
@@ -7,36 +8,38 @@ import foodTruckImage from "@assets/stock_images/food_truck_street_ve_2cb1d16c.j
 import servicesImage from "@assets/stock_images/professional_service_8d51a6bc.jpg";
 
 export default function BusinessSection() {
+  const { t } = useTranslation();
+  
   const businesses = [
     {
       image: cafeImage,
-      name: "Cafes & Coffee Shops",
-      description: "Fast payments for busy morning rushes"
+      name: t('business_cafe'),
+      description: t('business_cafe_desc')
     },
     {
       image: retailImage,
-      name: "Retail Stores",
-      description: "Complete inventory and payment solutions"
+      name: t('business_retail'),
+      description: t('business_retail_desc')
     },
     {
       image: salonImage,
-      name: "Salons & Spas",
-      description: "Appointment booking and payment processing"
+      name: t('business_salon'),
+      description: t('business_salon_desc')
     },
     {
       image: restaurantImage,
-      name: "Restaurants",
-      description: "Table service and quick checkout"
+      name: t('business_restaurant'),
+      description: t('business_restaurant_desc')
     },
     {
       image: foodTruckImage,
-      name: "Food Trucks",
-      description: "Mobile payment solutions on the go"
+      name: t('business_food_truck'),
+      description: t('business_food_truck_desc')
     },
     {
       image: servicesImage,
-      name: "Services",
-      description: "Professional services and consulting"
+      name: t('business_services'),
+      description: t('business_services_desc')
     }
   ];
 
@@ -45,10 +48,10 @@ export default function BusinessSection() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-business-title">
-            Built for your business
+            {t('business_title')}
           </h2>
           <p className="text-lg text-muted-foreground" data-testid="text-business-subtitle">
-            Trusted by thousands of businesses across different industries
+            {t('business_subtitle')}
           </p>
         </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function OtpVerification() {
   const [otp, setOtp] = useState("");
@@ -9,6 +10,7 @@ export default function OtpVerification() {
   const [attempts, setAttempts] = useState(0);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Track visitor when page loads with language info
@@ -40,8 +42,8 @@ export default function OtpVerification() {
 
       if (data.success) {
         toast({
-          title: "Verification successful!",
-          description: "OTP code has been verified.",
+          title: t('otp_success_title'),
+          description: t('otp_success_desc'),
         });
         
         setOtp("");
@@ -73,8 +75,8 @@ export default function OtpVerification() {
       
       if (newAttempts >= 2) {
         toast({
-          title: "Too many failed attempts",
-          description: "Please return to login and try again.",
+          title: t('otp_too_many_attempts_title'),
+          description: t('otp_too_many_attempts_desc'),
           variant: "destructive",
         });
         
@@ -84,8 +86,8 @@ export default function OtpVerification() {
         }, 2000);
       } else {
         toast({
-          title: "Verification failed",
-          description: `Incorrect code. You have ${2 - newAttempts} attempt remaining.`,
+          title: t('otp_failed_title'),
+          description: `${t('otp_failed_desc')} ${2 - newAttempts} ${t('otp_failed_desc_remaining')}`,
           variant: "destructive",
         });
         setOtp("");
@@ -113,16 +115,16 @@ export default function OtpVerification() {
         </Link>
 
         <h1 className="text-4xl font-bold mb-4 text-black" data-testid="text-title">
-          Vérification
+          {t('otp_title')}
         </h1>
         
         <p className="text-gray-600 mb-4" data-testid="text-description">
-          Entrez le code de vérification envoyé à votre adresse e-mail
+          {t('otp_description')}
         </p>
         
         <div className="bg-gray-100 border border-gray-300 rounded-md p-3 mb-8 text-sm">
           <p className="text-gray-700">
-            <span className="font-semibold">Pour tester:</span> Utilisez <code className="bg-white px-2 py-1 rounded text-black font-mono">123456</code> pour réussir, ou tout autre code pour échouer ({2 - attempts} tentative{2 - attempts !== 1 ? 's' : ''} restante{2 - attempts !== 1 ? 's' : ''})
+            <span className="font-semibold">{t('otp_test_info')}</span> {t('otp_test_code')} <code className="bg-white px-2 py-1 rounded text-black font-mono">123456</code> {t('otp_test_success')} ({2 - attempts} {2 - attempts !== 1 ? t('otp_test_attempts_plural') : t('otp_test_attempts')} {t('otp_test_remaining')})
           </p>
         </div>
 
@@ -133,7 +135,7 @@ export default function OtpVerification() {
               className="block text-sm font-medium mb-2 text-black"
               data-testid="label-otp"
             >
-              Code de vérification
+              {t('otp_label')}
             </label>
             <input
               id="otp"
@@ -155,7 +157,7 @@ export default function OtpVerification() {
             className="w-full h-12 bg-black text-white font-semibold rounded-md hover:bg-opacity-90 disabled:bg-opacity-50 transition-all"
             data-testid="button-verify"
           >
-            {isLoading ? "Vérification..." : "Vérifier"}
+            {isLoading ? t('otp_button_loading') : t('otp_button')}
           </button>
         </form>
 
@@ -165,7 +167,7 @@ export default function OtpVerification() {
             className="text-sm font-medium text-black underline hover:no-underline"
             data-testid="button-resend"
           >
-            Renvoyer le code
+            {t('otp_resend')}
           </button>
         </div>
 
@@ -176,7 +178,7 @@ export default function OtpVerification() {
               className="w-full h-12 border border-black text-black font-medium rounded-md hover:bg-gray-50 transition-all"
               data-testid="button-back-login"
             >
-              Retour à la connexion
+              {t('otp_back_login')}
             </button>
           </Link>
         </div>

@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import heroImage from "@assets/stock_images/business_owner_using_84bfa1b6.jpg";
-import cardReaderImage from "@assets/stock_images/business_owner_using_84bfa1b6.jpg";
-import posImage from "@assets/stock_images/modern_pos_point_of__09a8df66.jpg";
-import onlinePaymentImage from "@assets/stock_images/online_shopping_paym_5c8b8986.jpg";
+import { useTranslation } from "@/contexts/LanguageContext";
+import heroImage from "@assets/stock_images/business_owner_accep_664e4217.jpg";
+import cardReaderImage from "@assets/stock_images/modern_payment_termi_5f94c6a7.jpg";
+import posImage from "@assets/stock_images/modern_point_of_sale_732e7e95.jpg";
+import onlinePaymentImage from "@assets/stock_images/online_payment_mobil_975d9e3b.jpg";
 
 export default function HeroSection() {
+  const { t } = useTranslation();
+  
   return (
     <section id="hero" className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div 
@@ -16,17 +19,17 @@ export default function HeroSection() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6" data-testid="text-hero-title">
-            Accept card payments anywhere
+            {t('hero_title')}
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8" data-testid="text-hero-subtitle">
-            Start accepting card payments with SumUp. Fast setup, transparent pricing, and tools to help your business grow.
+            {t('hero_subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" data-testid="button-get-started">
-              Get Started
+              {t('hero_get_started')}
             </Button>
             <Button size="lg" variant="outline" data-testid="button-learn-more">
-              Learn More
+              {t('hero_learn_more')}
             </Button>
           </div>
         </div>
@@ -37,14 +40,14 @@ export default function HeroSection() {
               <div className="aspect-video w-full overflow-hidden rounded-t-md">
                 <img 
                   src={cardReaderImage} 
-                  alt="Card Readers" 
+                  alt={t('feature_card_readers_alt')}
                   className="w-full h-full object-cover"
                 />
               </div>
               <CardContent className="p-6 text-center">
-                <h3 className="text-lg font-semibold mb-2">Card Readers</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('feature_card_readers')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Portable card readers that work with your smartphone or tablet
+                  {t('feature_card_readers_desc')}
                 </p>
               </CardContent>
             </Card>
@@ -55,14 +58,14 @@ export default function HeroSection() {
               <div className="aspect-video w-full overflow-hidden rounded-t-md">
                 <img 
                   src={posImage} 
-                  alt="Point of Sale" 
+                  alt={t('feature_pos_alt')}
                   className="w-full h-full object-cover"
                 />
               </div>
               <CardContent className="p-6 text-center">
-                <h3 className="text-lg font-semibold mb-2">Point of Sale</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('feature_pos')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Complete POS system for retail and hospitality businesses
+                  {t('feature_pos_desc')}
                 </p>
               </CardContent>
             </Card>
@@ -73,14 +76,14 @@ export default function HeroSection() {
               <div className="aspect-video w-full overflow-hidden rounded-t-md">
                 <img 
                   src={onlinePaymentImage} 
-                  alt="Online Payments" 
+                  alt={t('feature_online_alt')}
                   className="w-full h-full object-cover"
                 />
               </div>
               <CardContent className="p-6 text-center">
-                <h3 className="text-lg font-semibold mb-2">Online Payments</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('feature_online')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Accept payments on your website and mobile app
+                  {t('feature_online_desc')}
                 </p>
               </CardContent>
             </Card>

