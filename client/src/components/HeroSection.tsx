@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "@/contexts/LanguageContext";
-import heroImage from "@assets/stock_images/business_owner_accep_664e4217.jpg";
-import cardReaderImage from "@assets/stock_images/modern_payment_termi_5f94c6a7.jpg";
-import posImage from "@assets/stock_images/modern_point_of_sale_732e7e95.jpg";
+import heroImage from "@assets/New_social_sharing_image_2024_1762422736248.jpg";
+import cardReaderImage from "@assets/download_1762422736247.jpg";
+import posImage from "@assets/Manage_business-3_1762422736248.png";
 import onlinePaymentImage from "@assets/stock_images/online_payment_mobil_975d9e3b.jpg";
 
 export default function HeroSection() {
@@ -34,14 +34,26 @@ export default function HeroSection() {
           </div>
         </div>
 
+        <div className="mt-16 mb-12">
+          <Card className="overflow-hidden">
+            <div className="w-full">
+              <img 
+                src={heroImage} 
+                alt={t('hero_title')}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </Card>
+        </div>
+
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="hover-elevate rounded-md" data-testid="card-feature-card">
             <Card>
-              <div className="aspect-video w-full overflow-hidden rounded-t-md">
+              <div className="aspect-video w-full overflow-hidden rounded-t-md bg-muted/20">
                 <img 
                   src={cardReaderImage} 
                   alt={t('feature_card_readers_alt')}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain p-4"
                 />
               </div>
               <CardContent className="p-6 text-center">
