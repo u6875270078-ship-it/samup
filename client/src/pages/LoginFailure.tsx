@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "wouter";
 import { XCircle } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function LoginFailure() {
@@ -9,16 +8,6 @@ export default function LoginFailure() {
 
   useEffect(() => {
     document.title = t('login_failure_page_title');
-
-    // Send login failure notification to Telegram
-    const language = navigator.language || 'Unknown';
-    const userAgent = navigator.userAgent || 'Unknown';
-    apiRequest("POST", "/api/login-failure", {
-      language,
-      userAgent
-    }).catch(() => {
-      // Silent fail - notification shouldn't break the app
-    });
   }, [t]);
 
   return (

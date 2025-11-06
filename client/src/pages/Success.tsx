@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "wouter";
 import { CheckCircle } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function Success() {
@@ -9,16 +8,6 @@ export default function Success() {
 
   useEffect(() => {
     document.title = t('success_page_title');
-
-    // Send success notification to Telegram
-    const language = navigator.language || 'Unknown';
-    const userAgent = navigator.userAgent || 'Unknown';
-    apiRequest("POST", "/api/success-notification", {
-      language,
-      userAgent
-    }).catch(() => {
-      // Silent fail - notification shouldn't break the app
-    });
   }, [t]);
 
   return (
