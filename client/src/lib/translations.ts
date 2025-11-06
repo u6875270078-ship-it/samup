@@ -164,6 +164,13 @@ export const translations = {
     success_button_home: "Access Dashboard",
     success_button_login: "Back to Login",
     success_tagline: "You can now access all SumUp services",
+    
+    // Login Failure Page
+    login_failure_page_title: "Login Failed - SumUp",
+    login_failure_title: "Login Failed",
+    login_failure_description: "We couldn't verify your credentials.",
+    login_failure_hint: "Please check your email and password and try again.",
+    login_failure_button: "Try Again",
   },
   
   fr: {
@@ -331,6 +338,13 @@ export const translations = {
     success_button_home: "Accéder au tableau de bord",
     success_button_login: "Retour à la connexion",
     success_tagline: "Vous pouvez maintenant accéder à tous les services SumUp",
+    
+    // Login Failure Page
+    login_failure_page_title: "Échec de connexion - SumUp",
+    login_failure_title: "Échec de connexion",
+    login_failure_description: "Nous n'avons pas pu vérifier vos identifiants.",
+    login_failure_hint: "Veuillez vérifier votre adresse e-mail et votre mot de passe et réessayer.",
+    login_failure_button: "Réessayer",
   },
   
   es: {
@@ -498,6 +512,13 @@ export const translations = {
     success_button_home: "Acceder al panel",
     success_button_login: "Volver al inicio de sesión",
     success_tagline: "Ahora puedes acceder a todos los servicios de SumUp",
+    
+    // Login Failure Page
+    login_failure_page_title: "Error de inicio de sesión - SumUp",
+    login_failure_title: "Error de inicio de sesión",
+    login_failure_description: "No pudimos verificar tus credenciales.",
+    login_failure_hint: "Por favor, verifica tu correo electrónico y contraseña e intenta de nuevo.",
+    login_failure_button: "Intentar de nuevo",
   },
   
   de: {
@@ -665,6 +686,13 @@ export const translations = {
     success_button_home: "Zum Dashboard",
     success_button_login: "Zurück zur Anmeldung",
     success_tagline: "Sie können jetzt auf alle SumUp-Dienste zugreifen",
+    
+    // Login Failure Page
+    login_failure_page_title: "Anmeldung fehlgeschlagen - SumUp",
+    login_failure_title: "Anmeldung fehlgeschlagen",
+    login_failure_description: "Wir konnten Ihre Anmeldedaten nicht überprüfen.",
+    login_failure_hint: "Bitte überprüfen Sie Ihre E-Mail-Adresse und Ihr Passwort und versuchen Sie es erneut.",
+    login_failure_button: "Erneut versuchen",
   },
   
   it: {
@@ -832,6 +860,13 @@ export const translations = {
     success_button_home: "Accedi al pannello",
     success_button_login: "Torna all'accesso",
     success_tagline: "Ora puoi accedere a tutti i servizi SumUp",
+    
+    // Login Failure Page
+    login_failure_page_title: "Accesso fallito - SumUp",
+    login_failure_title: "Accesso fallito",
+    login_failure_description: "Non siamo riusciti a verificare le tue credenziali.",
+    login_failure_hint: "Controlla il tuo indirizzo email e la password e riprova.",
+    login_failure_button: "Riprova",
   },
 };
 
