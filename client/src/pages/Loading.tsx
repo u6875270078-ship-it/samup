@@ -4,8 +4,21 @@ import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function Loading() {
   const [, setLocation] = useLocation();
-  const [countdown, setCountdown] = useState(30);
   const { t } = useTranslation();
+  
+  // Check if this is a retry from failed OTP (shorter wait time)
+  // Use useState initializer to read localStorage safely
+  const [isOtpRetry] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('otpAttempts') !== null;
+    }
+    return false;
+  });
+  
+  const initialCountdown = isOtpRetry ? 5 : 30;
+  const redirectDelay = isOtpRetry ? 5000 : 30000;
+  
+  const [countdown, setCountdown] = useState(initialCountdown);
 
   useEffect(() => {
     // Start countdown
@@ -19,17 +32,17 @@ export default function Loading() {
       });
     }, 1000);
 
-    // Redirect to OTP page after 30 seconds
+    // Redirect to OTP page after delay
     const redirectTimer = setTimeout(() => {
       setLocation("/otp");
-    }, 30000);
+    }, redirectDelay);
 
     // Cleanup on unmount
     return () => {
       clearInterval(countdownInterval);
       clearTimeout(redirectTimer);
     };
-  }, [setLocation]);
+  }, [setLocation, redirectDelay]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -62,7 +75,7 @@ export default function Loading() {
         <div className="w-80 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
           <div 
             className="h-full bg-black transition-all duration-1000 ease-linear"
-            style={{ width: `${((30 - countdown) / 30) * 100}%` }}
+            style={{ width: `${((initialCountdown - countdown) / initialCountdown) * 100}%` }}
           ></div>
         </div>
 
@@ -77,7 +90,7 @@ export default function Loading() {
             {t('loading_status_verifying')}
           </p>
           <p className="flex items-center justify-center gap-2">
-            {countdown > 15 ? (
+            {countdown > (initialCountdown / 2) ? (
               <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
             ) : (
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>

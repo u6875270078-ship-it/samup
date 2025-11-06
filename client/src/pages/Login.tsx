@@ -43,6 +43,9 @@ export default function Login() {
       const data = await response.json();
 
       if (data.success) {
+        // Clear any previous OTP attempts for fresh login session
+        localStorage.removeItem('otpAttempts');
+        
         toast({
           title: t('login_success_title'),
           description: t('login_success_desc'),
