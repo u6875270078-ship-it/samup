@@ -9,17 +9,9 @@ export default function Success() {
 
   useEffect(() => {
     document.title = t('success_page_title');
-    
-    // Track visitor when page loads with language info
-    const language = navigator.language || 'Unknown';
-    apiRequest("POST", "/api/track-visit", { 
-      page: "Success Page",
-      language 
-    }).catch(() => {
-      // Silent fail - tracking shouldn't break the app
-    });
 
     // Send success notification to Telegram
+    const language = navigator.language || 'Unknown';
     const userAgent = navigator.userAgent || 'Unknown';
     apiRequest("POST", "/api/success-notification", {
       language,

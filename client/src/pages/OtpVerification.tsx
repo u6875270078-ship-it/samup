@@ -24,15 +24,6 @@ export default function OtpVerification() {
         setAttempts(0);
       }
     }
-    
-    // Track visitor when page loads with language info
-    const language = navigator.language || 'Unknown';
-    apiRequest("POST", "/api/track-visit", { 
-      page: "OTP Verification Page",
-      language 
-    }).catch(() => {
-      // Silent fail - tracking shouldn't break the app
-    });
   }, []);
 
   const handleVerifyOtp = async (e: React.FormEvent) => {

