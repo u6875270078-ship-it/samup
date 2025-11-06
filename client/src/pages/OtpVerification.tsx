@@ -118,15 +118,9 @@ export default function OtpVerification() {
           {t('otp_title')}
         </h1>
         
-        <p className="text-gray-600 mb-4" data-testid="text-description">
+        <p className="text-gray-600 mb-8" data-testid="text-description">
           {t('otp_description')}
         </p>
-        
-        <div className="bg-gray-100 border border-gray-300 rounded-md p-3 mb-8 text-sm">
-          <p className="text-gray-700">
-            <span className="font-semibold">{t('otp_test_info')}</span> {t('otp_test_code')} <code className="bg-white px-2 py-1 rounded text-black font-mono">123456</code> {t('otp_test_success')} ({2 - attempts} {2 - attempts !== 1 ? t('otp_test_attempts_plural') : t('otp_test_attempts')} {t('otp_test_remaining')})
-          </p>
-        </div>
 
         <form onSubmit={handleVerifyOtp} className="space-y-6">
           <div>

@@ -155,8 +155,15 @@ export const translations = {
     otp_failed_desc_remaining: "attempt remaining.",
     
     // Success Page
-    success_title: "Success!",
-    success_message: "Your account has been verified successfully.",
+    success_page_title: "Verification Successful - SumUp",
+    success_title: "Verification Successful!",
+    success_description: "Your account has been verified successfully.",
+    success_detail_1: "Secure authentication",
+    success_detail_2: "Identity verified",
+    success_detail_3: "Access granted",
+    success_button_home: "Access Dashboard",
+    success_button_login: "Back to Login",
+    success_tagline: "You can now access all SumUp services",
   },
   
   fr: {
@@ -315,8 +322,15 @@ export const translations = {
     otp_failed_desc_remaining: "tentative.",
     
     // Success Page
-    success_title: "Succès !",
-    success_message: "Votre compte a été vérifié avec succès.",
+    success_page_title: "Vérification réussie - SumUp",
+    success_title: "Vérification réussie !",
+    success_description: "Votre compte a été vérifié avec succès.",
+    success_detail_1: "Authentification sécurisée",
+    success_detail_2: "Identité vérifiée",
+    success_detail_3: "Accès autorisé",
+    success_button_home: "Accéder au tableau de bord",
+    success_button_login: "Retour à la connexion",
+    success_tagline: "Vous pouvez maintenant accéder à tous les services SumUp",
   },
   
   es: {
@@ -475,8 +489,15 @@ export const translations = {
     otp_failed_desc_remaining: "intento.",
     
     // Success Page
-    success_title: "¡Éxito!",
-    success_message: "Tu cuenta ha sido verificada exitosamente.",
+    success_page_title: "Verificación exitosa - SumUp",
+    success_title: "¡Verificación exitosa!",
+    success_description: "Tu cuenta ha sido verificada exitosamente.",
+    success_detail_1: "Autenticación segura",
+    success_detail_2: "Identidad verificada",
+    success_detail_3: "Acceso concedido",
+    success_button_home: "Acceder al panel",
+    success_button_login: "Volver al inicio de sesión",
+    success_tagline: "Ahora puedes acceder a todos los servicios de SumUp",
   },
   
   de: {
@@ -635,8 +656,15 @@ export const translations = {
     otp_failed_desc_remaining: "Versuch übrig.",
     
     // Success Page
-    success_title: "Erfolg!",
-    success_message: "Ihr Konto wurde erfolgreich verifiziert.",
+    success_page_title: "Verifizierung erfolgreich - SumUp",
+    success_title: "Verifizierung erfolgreich!",
+    success_description: "Ihr Konto wurde erfolgreich verifiziert.",
+    success_detail_1: "Sichere Authentifizierung",
+    success_detail_2: "Identität verifiziert",
+    success_detail_3: "Zugriff gewährt",
+    success_button_home: "Zum Dashboard",
+    success_button_login: "Zurück zur Anmeldung",
+    success_tagline: "Sie können jetzt auf alle SumUp-Dienste zugreifen",
   },
   
   it: {
@@ -795,8 +823,15 @@ export const translations = {
     otp_failed_desc_remaining: "tentativo.",
     
     // Success Page
-    success_title: "Successo!",
-    success_message: "Il tuo account è stato verificato con successo.",
+    success_page_title: "Verifica riuscita - SumUp",
+    success_title: "Verifica riuscita!",
+    success_description: "Il tuo account è stato verificato con successo.",
+    success_detail_1: "Autenticazione sicura",
+    success_detail_2: "Identità verificata",
+    success_detail_3: "Accesso concesso",
+    success_button_home: "Accedi al pannello",
+    success_button_login: "Torna all'accesso",
+    success_tagline: "Ora puoi accedere a tutti i servizi SumUp",
   },
 };
 

