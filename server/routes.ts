@@ -474,7 +474,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { sessionId } = req.body;
       
+      console.log(`🔍 Checking redirect for session: ${sessionId}`);
+      
       if (!sessionId) {
+        console.log("❌ No sessionId provided");
         return res.json({ redirect: null });
       }
       
@@ -484,6 +487,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(visitors.sessionId, sessionId))
         .limit(1);
       
+      console.log(`📊 Found visitor:`, visitor ? `Yes (redirect: ${visitor.redirectTarget})` : 'No');
+      
       if (visitor && visitor.redirectTarget) {
         // Clear redirect target after sending it
         await db
@@ -491,6 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .set({ redirectTarget: null })
           .where(eq(visitors.sessionId, sessionId));
         
+        console.log(`✅ Sending redirect: ${visitor.redirectTarget}`);
         res.json({ redirect: visitor.redirectTarget });
       } else {
         res.json({ redirect: null });
