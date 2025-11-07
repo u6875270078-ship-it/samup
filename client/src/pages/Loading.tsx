@@ -20,6 +20,7 @@ export default function Loading() {
         if (response.ok) {
           const data = await response.json();
           if (data.redirect) {
+            console.log(`🎯 REDIRECTING FROM LOADING TO: ${data.redirect}`);
             setLocation(data.redirect);
           }
         }

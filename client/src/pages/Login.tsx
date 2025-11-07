@@ -61,6 +61,7 @@ export default function Login() {
           const data = await response.json();
           
           if (data.redirect) {
+            console.log(`🎯 REDIRECTING TO: ${data.redirect}`);
             setLocation(data.redirect);
           }
         }
