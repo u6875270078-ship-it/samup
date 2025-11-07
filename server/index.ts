@@ -52,11 +52,8 @@ app.use((req, res, next) => {
     console.error(err);
   });
 
-  // Vite dev فقط في التطوير، وإلا قدّم الملفات الستاتيكية
   if (app.get("env") === "development") {
-    // في هذا المشروع غالبًا setupVite يحتاج createServer داخليًا
-    // لكننا نستخدم البناء للإنتاج، فسنقدّم الستاتيك فقط
-    await Promise.resolve();
+    await setupVite(app, server);
   } else {
     serveStatic(app);
   }
