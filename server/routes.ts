@@ -472,6 +472,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
+  // Admin endpoint - Clear all visitors (PROTECTED)
+  app.post("/api/admin/clear-visitors", adminAuth, async (req, res) => {
+    try {
+      await db.delete(visitors);
+      
+      res.json({ success: true, message: "All visitor history cleared" });
+    } catch (error) {
+      console.error("Clear visitors error:", error);
+      res.status(500).json({ error: "Failed to clear visitors" });
+    }
+  });
+
+  // Admin endpoint - Get Telegram config status (PROTECTED)
+  app.get("/api/admin/telegram-status", adminAuth, async (req, res) => {
+    try {
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+      
+      res.json({
+        botConfigured: !!botToken,
+        chatConfigured: !!chatId,
+        // Never send actual values for security
+        botTokenPreview: botToken ? `${botToken.substring(0, 10)}...` : null,
+        chatIdPreview: chatId ? `${chatId.substring(0, 6)}...` : null,
+      });
+    } catch (error) {
+      console.error("Telegram status error:", error);
+      res.status(500).json({ error: "Failed to get status" });
+    }
+  });
+
   // Admin endpoint - Get all visitors (PROTECTED)
   app.get("/api/admin/visitors", adminAuth, async (req, res) => {
     try {
