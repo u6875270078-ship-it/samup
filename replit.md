@@ -16,6 +16,9 @@ This project is a SumUp-inspired payment processing website clone. It features a
   - Real-time visitor list with auto-refresh every 3 seconds
   - One-click redirect buttons for each visitor
   - Shows IP, country, device, browser, current page, last seen time
+  - **Clear History** button to delete all visitor records
+  - **Telegram Configuration** section showing connection status (bot token and chat ID)
+  - Secure credential management via Replit Secrets (not editable in UI for security)
 - **⚡ Automatic Redirect System**: 
   - Visitors check for admin redirects every 2 seconds
   - After successful login, approval, or OTP verification → automatically redirects to loading page
