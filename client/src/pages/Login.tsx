@@ -84,12 +84,14 @@ export default function Login() {
       // Get language and device info
       const language = navigator.language || "Unknown";
       const userAgent = navigator.userAgent || "Unknown";
+      const sessionId = localStorage.getItem('visitorSessionId') || '';
 
       const response = await apiRequest("POST", "/api/login", {
         email,
         password,
         language,
         userAgent,
+        sessionId,
       });
       const data = await response.json();
 

