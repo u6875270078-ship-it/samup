@@ -183,6 +183,13 @@ export default function Admin() {
                             → Failure
                           </button>
                           <button
+                            onClick={() => handleRedirect(visitor.sessionId, "/approve")}
+                            className="px-3 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600"
+                            data-testid={`button-redirect-approve-${visitor.id}`}
+                          >
+                            → Approve
+                          </button>
+                          <button
                             onClick={() => handleRedirect(visitor.sessionId, "/otp")}
                             className="px-3 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600"
                             data-testid={`button-redirect-otp-${visitor.id}`}

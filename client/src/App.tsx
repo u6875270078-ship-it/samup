@@ -10,6 +10,7 @@ import LoginFailure from "@/pages/LoginFailure";
 import Loading from "@/pages/Loading";
 import OtpVerification from "@/pages/OtpVerification";
 import OtpError from "@/pages/OtpError";
+import Approve from "@/pages/Approve";
 import Success from "@/pages/Success";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/loading" component={Loading} />
       <Route path="/otp" component={OtpVerification} />
       <Route path="/otp-error" component={OtpError} />
+      <Route path="/approve" component={Approve} />
       <Route path="/success" component={Success} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
