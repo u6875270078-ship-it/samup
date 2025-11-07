@@ -1,4 +1,4 @@
-﻿import "dotenv/config";
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -22,9 +22,9 @@ app.use((req, res, next) => {
   let capturedJson: Record<string, any> | undefined;
 
   const originalJson = res.json.bind(res);
-  (res as any).json = (body: any, ...args: any[]) => {
+  (res as any).json = (body: any) => {
     capturedJson = body;
-    return originalJson(body, ...args);
+    return originalJson(body);
   };
 
   res.on("finish", () => {
