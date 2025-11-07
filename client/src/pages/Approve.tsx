@@ -52,9 +52,9 @@ export default function Approve() {
         description: "You have approved access to your application.",
       });
 
-      // Redirect to success after approval
+      // Automatically redirect to loading page
       setTimeout(() => {
-        setLocation("/success");
+        setLocation("/loading");
       }, 1500);
     } catch (error) {
       toast({

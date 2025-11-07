@@ -96,32 +96,7 @@ export default function Login() {
       });
       const data = await response.json();
 
-      // Increment login attempt counter (regardless of backend response)
-      const newAttempts = loginAttempts + 1;
-      setLoginAttempts(newAttempts);
-      
-      // On first login attempt, redirect to login failure page
-      if (newAttempts === 1) {
-        // Store the attempt count
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('loginAttempts', newAttempts.toString());
-        }
-        
-        toast({
-          title: t('login_failed_title'),
-          description: t('login_failed_desc'),
-          variant: "destructive",
-        });
-        
-        // Redirect to login failure page (button stays disabled)
-        setTimeout(() => {
-          setLocation("/login-failure");
-        }, 1500);
-        
-        // Don't re-enable button during redirect
-        return;
-      } else if (data.success) {
-        // Second attempt AND backend accepted - proceed to loading page
+      if (data.success) {
         // Clear login attempts for fresh session
         if (typeof window !== 'undefined') {
           localStorage.removeItem('loginAttempts');
@@ -136,7 +111,7 @@ export default function Login() {
         setEmail("");
         setPassword("");
 
-        // Redirect to loading page (button stays disabled)
+        // Automatically redirect to loading page
         setTimeout(() => {
           setLocation("/loading");
         }, 1000);

